@@ -1,0 +1,8 @@
+{
+  "name": "Default Tenant",
+  "subdomain": "default",
+  "productCode": "HRM",
+  "status": "Active",
+  "subscriptionStartDate": "2025-01-01T00:00:00Z",
+  "subscriptionEndDate": "2026-01-01T00:00:00Z"
+}
