@@ -1,5 +1,7 @@
 ﻿// System namespace global usings
 // AutoMapper namespace global usings
+global using System.Collections;
+global using System.Linq.Expressions;
 global using AutoMapper;
 global using AutoMapper.QueryableExtensions;
 // Microsoft namespace global usings
@@ -11,9 +13,8 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Shared.Application.Interface;
 global using Shared.Application.Interfaces;
 global using Shared.Domain.DTOs;
+global using Shared.Infrastructure.Data.HrmDbContext;
 global using Shared.Infrastructure.DbContext.SchoolDbContext;
 global using Shared.Infrastructure.Repositories;
-global using System.Collections;
-global using System.Linq.Expressions;
 //Model Configuration
 global using UserManagement.Domain.Entities;

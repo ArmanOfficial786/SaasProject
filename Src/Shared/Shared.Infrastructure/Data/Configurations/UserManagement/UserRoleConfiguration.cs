@@ -1,13 +1,12 @@
-﻿namespace Shared.Infrastructure.DbContext.Configurations.UserManagement
+﻿namespace Shared.Infrastructure.Data.Configurations.UserManagement;
+
+public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 {
-    public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
+    public void Configure(EntityTypeBuilder<UserRole> builder)
     {
-        public void Configure(EntityTypeBuilder<UserRole> builder)
-        {
-            builder.ToTable("UserRoles");
-            builder.HasKey(ur => new { ur.UserId, ur.RoleId });
-            builder.HasOne(ur => ur.User).WithMany(u => u.UserRoles).HasForeignKey(ur => ur.UserId);
-            builder.HasOne(ur => ur.Role).WithMany(r => r.UserRoles).HasForeignKey(ur => ur.RoleId);
-        }
+        builder.ToTable("UserRoles", Schemas.UserManagement);
+        builder.HasKey(ur => new { ur.UserId, ur.RoleId });
+        builder.HasOne(ur => ur.User).WithMany(u => u.UserRoles).HasForeignKey(ur => ur.UserId);
+        builder.HasOne(ur => ur.Role).WithMany(r => r.UserRoles).HasForeignKey(ur => ur.RoleId);
     }
 }

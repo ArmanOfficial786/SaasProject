@@ -2,13 +2,10 @@
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
 
-public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
+public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext tenantContext)
+    : Microsoft.EntityFrameworkCore.DbContext(options), IDbContext
 {
-    private readonly ITenantContext _tenantContext;
     private IDbContextTransaction? _currentTransaction;
-
-    public HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext tenantContext)
-        : base(options) => _tenantContext = tenantContext;
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<User> Users => Set<User>();
@@ -17,11 +14,16 @@ public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        _ = optionsBuilder.UseSnakeCaseNamingConvention();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrmDbContext).Assembly);
-        var tenantId = _tenantContext.TenantId;
+        var tenantId = tenantContext.TenantId;
         modelBuilder.Entity<User>().HasQueryFilter(e => e.TenantId == tenantId);
         modelBuilder.Entity<Role>().HasQueryFilter(e => e.TenantId == tenantId);
     }
