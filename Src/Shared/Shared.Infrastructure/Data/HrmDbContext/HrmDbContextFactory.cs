@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore.Design;
-using Shared.Domain.Abstraction;
+﻿using Microsoft.EntityFrameworkCore.Design;
+using Shared.Domain.Abstractions;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
 
@@ -35,7 +35,7 @@ public class HrmDbContextFactory : IDesignTimeDbContextFactory<HrmDbContext>
 /// </summary>
 internal class DesignTimeTenantContext : ITenantContext
 {
-    public Guid TenantId => Guid.Empty;
+    public Guid CompanyId => Guid.Empty;
     public Guid UserId => Guid.Empty;
     public string ProductCode => "design-time";
     public IReadOnlyList<string> Permissions => new List<string>();

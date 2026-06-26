@@ -1,18 +1,21 @@
-﻿using Shared.Domain.Abstraction;
+﻿using Shared.Domain.Abstractions;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
 
 public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext tenantContext)
     : Microsoft.EntityFrameworkCore.DbContext(options), IDbContext
 {
+    private readonly ITenantContext _tenantContext = tenantContext;
     private IDbContextTransaction? _currentTransaction;
 
-    public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<Company> Tenants => Set<Company>();
+    public DbSet<Company> Companies => Set<Company>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<Permission> Permissions => Set<Permission>();
+    public DbSet<Agent> Agents => Set<Agent>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
-    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<RoleModulePermission> RolePermissions => Set<RoleModulePermission>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -23,9 +26,16 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrmDbContext).Assembly);
-        var tenantId = tenantContext.TenantId;
-        modelBuilder.Entity<User>().HasQueryFilter(e => e.TenantId == tenantId);
-        modelBuilder.Entity<Role>().HasQueryFilter(e => e.TenantId == tenantId);
+        // Get the tenant ID from the context (set by middleware)
+        var companyId = _tenantContext?.CompanyId ?? Guid.Empty;
+
+        // --- Global query filters for multi-tenancy ---
+        // These automatically apply to every query!
+        modelBuilder.Entity<User>().HasQueryFilter(u => u.CompanyId == companyId);
+        modelBuilder.Entity<Role>().HasQueryFilter(r => r.CompanyId == companyId);
+        modelBuilder.Entity<Permission>().HasQueryFilter(p => p.CompanyId == companyId);
+        modelBuilder.Entity<Agent>().HasQueryFilter(a => a.CompanyId == companyId);
+        modelBuilder.Entity<CompanyRole>().HasQueryFilter(cr => cr.CompanyId == companyId);
     }
 
     DbSet<T> IDbContext.Set<T>() => Set<T>();

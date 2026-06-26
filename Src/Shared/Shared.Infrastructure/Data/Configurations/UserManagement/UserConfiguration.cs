@@ -5,19 +5,18 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.ToTable("Users", Schemas.UserManagement);
-        builder.HasKey(u => u.UserId);
-        builder.Property(u => u.Email).IsRequired().HasMaxLength(250);
-        builder.Property(u => u.UserName).IsRequired().HasMaxLength(100);
+        builder.HasKey(u => u.Id);
+        builder.Property(u => u.Email).HasMaxLength(250);
+        builder.Property(u => u.UserName).HasMaxLength(100);
         builder.Property(u => u.FullName).HasMaxLength(200);
-        builder.Property(u => u.Password).IsRequired();
+        builder.Property(u => u.Contact).HasMaxLength(256);
 
-        builder.HasIndex(u => new { u.TenantId, u.Email }).IsUnique().HasDatabaseName("IX_Users_TenantId_Email");
-        builder.HasIndex(u => new { u.TenantId, u.UserName }).IsUnique().HasDatabaseName("IX_Users_TenantId_UserName");
+        builder.HasIndex(u => new { u.CompanyId, u.Email }).IsUnique().HasDatabaseName("IX_Users_CompanyId_Email");
+        builder.HasIndex(u => new { u.CompanyId, u.UserName }).IsUnique().HasDatabaseName("IX_Users_CompanyId_UserName");
 
-        // Configure relationship as optional to avoid issues with global query filters
+        // Configure relationship
         builder.HasMany(u => u.UserRoles)
-            .WithOne(ur => ur.User)
-            .HasForeignKey(ur => ur.UserId)
+            .WithOne()
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
     }

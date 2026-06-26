@@ -14,6 +14,8 @@ global using Shared.Application.Interface;
 global using Shared.Application.Interfaces;
 global using Shared.Domain.DTOs;
 global using Shared.Infrastructure.Data.HrmDbContext;
+//interceptor
+global using Shared.Infrastructure.Data.Interceptors;
 global using Shared.Infrastructure.DbContext.SchoolDbContext;
 global using Shared.Infrastructure.Repositories;
 //Model Configuration

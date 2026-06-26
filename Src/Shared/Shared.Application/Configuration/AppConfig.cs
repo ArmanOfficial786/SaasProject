@@ -1,42 +1,27 @@
-namespace Shared.Application.Configuration;
+﻿namespace Shared.Application.Configuration;
 
-/// <summary>
-/// Application configuration settings
-/// </summary>
 public class AppConfig
 {
-    /// <summary>
-    /// Application name
-    /// </summary>
-    public string AppName { get; set; } = string.Empty;
+    public string ApiKey { get; set; } = "";
+    public string ApiURL { get; set; } = "";
+    public string WebURL { get; set; } = "";
+    public string FilePath { get; set; } = "";
+    public string FileUploadTarget { get; set; } = "";
+    public LifeTime OTPLifeTime { get; set; } = new();
+    public LifeTime JWTTokenLifeTime { get; set; } = new();
+    public LifeTime PasswordSetTokenLifeTime { get; set; } = new();
+    public LifeTime PasswordResetTokenLifeTime { get; set; } = new();
+}
 
-    /// <summary>
-    /// Application version
-    /// </summary>
-    public string AppVersion { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Application environment (Development, Staging, Production)
-    /// </summary>
-    public string Environment { get; set; } = string.Empty;
-
-    /// <summary>
-    /// API base URL
-    /// </summary>
-    public string ApiBaseUrl { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Enable detailed logging
-    /// </summary>
-    public bool EnableDetailedLogging { get; set; } = false;
-
-    /// <summary>
-    /// Request timeout in seconds
-    /// </summary>
-    public int RequestTimeoutSeconds { get; set; } = 30;
-
-    /// <summary>
-    /// Enable API documentation
-    /// </summary>
-    public bool EnableApiDocumentation { get; set; } = true;
+public class LifeTime
+{
+    public int Day { get; set; }
+    public int Hour { get; set; }
+    public int Minute { get; set; }
+    public LifeTime()
+    {
+        Day = 0;
+        Hour = 0;
+        Minute = 0;
+    }
 }

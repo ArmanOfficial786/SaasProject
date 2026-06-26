@@ -1,11 +1,16 @@
-﻿//junction table for many-to-many relationship between User and Role
+﻿using UserManagement.Domain.Entities.BaseEntities;
+
 namespace UserManagement.Domain.Entities;
 
-public class UserRole
+public class UserRole : AuditableEntity
 {
+    public Role Role { get; private set; }
 
-    public Guid UserId { get; set; }
-    public User User { get; set; } = null!;
-    public Guid RoleId { get; set; }
-    public Role Role { get; set; } = null!;
+    public UserRole(Role role)
+    {
+        Role = role;
+    }
+
+#pragma warning disable CS8618
+    private UserRole() { }
 }
