@@ -1,4 +1,6 @@
-﻿using Shared.Domain.Abstractions;
+﻿using System.Reflection;
+using Shared.Domain.Abstractions;
+using UserManagement.Domain.Entities.BaseEntities;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
 
@@ -7,6 +9,10 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
 {
     private readonly ITenantContext _tenantContext = tenantContext;
     private IDbContextTransaction? _currentTransaction;
+
+    // Cached MethodInfo for the generic tenant filter – built once per app lifetime.
+    private static readonly MethodInfo SetTenantQueryFilterMethod =
+        typeof(HrmDbContext).GetMethod(nameof(SetTenantQueryFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     public DbSet<Company> Tenants => Set<Company>();
     public DbSet<Company> Companies => Set<Company>();
@@ -26,16 +32,64 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrmDbContext).Assembly);
-        // Get the tenant ID from the context (set by middleware)
-        var companyId = _tenantContext?.CompanyId ?? Guid.Empty;
 
-        // --- Global query filters for multi-tenancy ---
-        // These automatically apply to every query!
-        modelBuilder.Entity<User>().HasQueryFilter(u => u.CompanyId == companyId);
-        modelBuilder.Entity<Role>().HasQueryFilter(r => r.CompanyId == companyId);
-        modelBuilder.Entity<Permission>().HasQueryFilter(p => p.CompanyId == companyId);
-        modelBuilder.Entity<Agent>().HasQueryFilter(a => a.CompanyId == companyId);
-        modelBuilder.Entity<CompanyRole>().HasQueryFilter(cr => cr.CompanyId == companyId);
+        ApplyAuditRelationships(modelBuilder);
+        ApplyTenantQueryFiltersByConvention(modelBuilder);
+
+    }
+
+    /// <summary>
+    /// Method 3, convention-based: no marker interface, no BaseEntity change required.
+    /// Any entity (regardless of what it inherits — BaseEntity, IdentityUser, plain POCO)
+    /// that has a property named "CompanyId" is automatically tenant-scoped.
+    /// - Skips TPH-derived types (entityType.BaseType != null) so the filter is set once
+    ///   at the root and EF Core propagates it down the whole hierarchy.
+    /// - Skips owned types — they inherit their owner's filter automatically.
+    /// - Company has no CompanyId property, so it's naturally excluded — no hardcoded
+    ///   type-check needed.
+    /// </summary>
+    private void ApplyTenantQueryFiltersByConvention(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (entityType.BaseType != null) continue;                 // only the TPH root
+            if (entityType.IsOwned()) continue;                        // owned types follow their owner
+            if (entityType.FindProperty("CompanyId") is null) continue; // No CompanyId? No filter.
+
+            // Use reflection to call SetTenantQueryFilter<TEntity> with the runtime type.
+            SetTenantQueryFilterMethod
+                .MakeGenericMethod(entityType.ClrType)
+                .Invoke(this, [modelBuilder]);
+        }
+    }
+
+    // EF.Property<Guid>(e, "CompanyId") reads the column by name through EF's metadata,
+    // so TEntity needs no interface and no compile-time CompanyId member at all.
+    // `this._tenantContext.CompanyId` is referenced through the DbContext instance (not a
+    // local variable) so EF re-evaluates it per query instead of baking a snapshot value
+    // into the cached model on first build.
+    private void SetTenantQueryFilter<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : class
+    {
+        modelBuilder.Entity<TEntity>()
+            .HasQueryFilter(e => EF.Property<Guid>(e, "CompanyId") == this._tenantContext.CompanyId);
+    }
+
+    private static void ApplyAuditRelationships(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>()
+            .HasMany<AuditableEntity>()
+            .WithOne(ae => ae.EntryBy)
+            .HasForeignKey(ae => ae.EntryByUserId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<User>()
+            .HasMany<AuditableEntity>()
+            .WithOne(ae => ae.UpdatedBy)
+            .HasForeignKey(ae => ae.UpdatedByUserId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 
     DbSet<T> IDbContext.Set<T>() => Set<T>();

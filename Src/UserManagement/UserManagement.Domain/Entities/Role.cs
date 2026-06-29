@@ -6,10 +6,9 @@ namespace UserManagement.Domain.Entities;
 
 public class Role : IdentityRole<Guid>
 {
-    public Guid CompanyId { get; private set; }
+
     [MaxLength(500)]
     public string Desc { get; private set; }
-
     public User? EntryBy { get; private set; }
     public DateTime EntryDate { get; private set; } = DateTime.UtcNow;
     public DateTime FromDate { get; private set; } = DateTime.UtcNow;

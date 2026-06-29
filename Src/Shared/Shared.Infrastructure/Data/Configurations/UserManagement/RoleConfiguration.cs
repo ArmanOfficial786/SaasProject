@@ -4,15 +4,23 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)
     {
-        builder.ToTable("Roles", Schemas.UserManagement);
-        builder.HasKey(r => r.Id);
-        builder.Property(r => r.Name).IsRequired().HasMaxLength(100);
-        builder.Property(r => r.Desc).HasMaxLength(500);
-        builder.HasIndex(r => new { r.CompanyId, r.Name }).IsUnique().HasDatabaseName("IX_Roles_CompanyId_Name");
+        builder.ToTable("roles");
 
-        // Configure relationships
-        builder.HasMany(r => r.UserRoles)
-            .WithOne()
-            .IsRequired(false);
+        builder.HasKey(r => r.Id);
+        builder.Property(r => r.Id).HasColumnName("RoleId");
+        // Shadow CompanyId
+        builder.Property<Guid>("CompanyId").IsRequired();
+        builder.Property(r => r.Desc).HasMaxLength(500).IsRequired();
+
+        builder.HasOne(r => r.EntryBy)
+            .WithMany()
+            .HasForeignKey("EntryByUserId")
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Unique constraint per tenant
+        builder.HasIndex("CompanyId", nameof(Role.NormalizedName)).IsUnique();
+
+        builder.Navigation(r => r.RoleModulePermissions).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

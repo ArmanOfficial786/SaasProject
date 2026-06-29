@@ -2,7 +2,7 @@
 
 namespace UserManagement.Domain.Entities;
 
-public class UserRole : AuditableEntity
+public class UserRole : BaseEntity
 {
     public Role Role { get; private set; }
 

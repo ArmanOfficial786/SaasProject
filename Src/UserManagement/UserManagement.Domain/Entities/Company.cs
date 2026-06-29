@@ -50,12 +50,4 @@ public class Company : AuditableEntity
     }
     private Company() { } // For EF Core
 
-
-
-
-
-
-
-
-
 }

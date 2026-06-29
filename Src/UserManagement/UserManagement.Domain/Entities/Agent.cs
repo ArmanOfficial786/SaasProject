@@ -11,7 +11,7 @@ namespace UserManagement.Domain.Entities;
 
 public class Agent : AuditableEntity
 {
-    public Guid CompanyId { get; private set; }
+
     [MaxLength(250)]
     public string? Name { get; private set; }
     [MinLength(9)]

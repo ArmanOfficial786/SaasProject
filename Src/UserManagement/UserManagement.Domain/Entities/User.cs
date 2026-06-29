@@ -5,9 +5,6 @@ namespace UserManagement.Domain.Entities;
 public class User : IdentityUser<Guid>
 
 {
-    [Key]
-    [MaxLength(100)]
-    public int UserId { get; private set; }
     [MaxLength(256)]
     public new string? Email { get; private set; }
     [MaxLength(100)]
@@ -56,16 +53,5 @@ public class User : IdentityUser<Guid>
     {
         _userRoles.Add(new UserRole(role));
     }
-
-
-
-
-
-
-
-
-
-
-
 
 }

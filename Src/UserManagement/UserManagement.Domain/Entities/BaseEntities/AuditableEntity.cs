@@ -5,9 +5,14 @@ namespace UserManagement.Domain.Entities.BaseEntities;
 
 public abstract class AuditableEntity : BaseEntity
 {
-    public new Guid Id { get; set; }
+
+    // Foreign keys for audit trail
+    public Guid? EntryByUserId { get; private set; }
     public User? EntryBy { get; private set; }
+
+    public Guid? UpdatedByUserId { get; private set; }
     public User? UpdatedBy { get; private set; }
+
     public DateTime EntryDate { get; private set; } = DateTime.UtcNow;
     public DateTime? UpdatedDate { get; private set; } = DateTime.UtcNow;
     public DateTime? ToDate { get; private set; }

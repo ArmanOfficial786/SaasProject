@@ -12,6 +12,9 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<DbInitializer>();
 
+        // Register MediatR
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+
         // Register ITenantContext with a default implementation
         services.AddScoped<ITenantContext>(provider => new TenantContext());
         // Register the domain events interceptor (shared across all DbContexts)
@@ -19,6 +22,10 @@ public static class DependencyInjection
 
         // Register AutoMapper - scan all assemblies for profiles
         services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
+
+        //Register for tenant context accessor
+        services.AddScoped<TenantContext>();
+        services.AddScoped<ITenantContext>(sp => sp.GetRequiredService<TenantContext>());
 
         return services;
     }
