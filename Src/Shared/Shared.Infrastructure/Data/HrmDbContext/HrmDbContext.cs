@@ -4,17 +4,15 @@ using UserManagement.Domain.Entities.BaseEntities;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
 
-public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext tenantContext)
-    : Microsoft.EntityFrameworkCore.DbContext(options), IDbContext
+public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
 {
-    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly ITenantContext _tenantContext;
     private IDbContextTransaction? _currentTransaction;
 
-    // Cached MethodInfo for the generic tenant filter – built once per app lifetime.
+    // Cached MethodInfo for the generic tenant filter
     private static readonly MethodInfo SetTenantQueryFilterMethod =
         typeof(HrmDbContext).GetMethod(nameof(SetTenantQueryFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-    public DbSet<Company> Tenants => Set<Company>();
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
@@ -23,9 +21,10 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<RoleModulePermission> RolePermissions => Set<RoleModulePermission>();
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public HrmDbContext(Microsoft.EntityFrameworkCore.DbContextOptions<HrmDbContext> options, ITenantContext tenantContext)
+        : base(options)
     {
-        _ = optionsBuilder.UseSnakeCaseNamingConvention();
+        _tenantContext = tenantContext;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,45 +34,31 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
 
         ApplyAuditRelationships(modelBuilder);
         ApplyTenantQueryFiltersByConvention(modelBuilder);
-
     }
 
-    /// <summary>
-    /// Method 3, convention-based: no marker interface, no BaseEntity change required.
-    /// Any entity (regardless of what it inherits — BaseEntity, IdentityUser, plain POCO)
-    /// that has a property named "CompanyId" is automatically tenant-scoped.
-    /// - Skips TPH-derived types (entityType.BaseType != null) so the filter is set once
-    ///   at the root and EF Core propagates it down the whole hierarchy.
-    /// - Skips owned types — they inherit their owner's filter automatically.
-    /// - Company has no CompanyId property, so it's naturally excluded — no hardcoded
-    ///   type-check needed.
-    /// </summary>
+    // --- Tenant Filter ---
+
     private void ApplyTenantQueryFiltersByConvention(ModelBuilder modelBuilder)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            if (entityType.BaseType != null) continue;                 // only the TPH root
-            if (entityType.IsOwned()) continue;                        // owned types follow their owner
-            if (entityType.FindProperty("CompanyId") is null) continue; // No CompanyId? No filter.
+            if (entityType.BaseType != null) continue;          // TPH root only
+            if (entityType.IsOwned()) continue;                 // owned types follow owner
+            if (entityType.FindProperty("CompanyId") is null) continue;
 
-            // Use reflection to call SetTenantQueryFilter<TEntity> with the runtime type.
             SetTenantQueryFilterMethod
                 .MakeGenericMethod(entityType.ClrType)
                 .Invoke(this, [modelBuilder]);
         }
     }
 
-    // EF.Property<Guid>(e, "CompanyId") reads the column by name through EF's metadata,
-    // so TEntity needs no interface and no compile-time CompanyId member at all.
-    // `this._tenantContext.CompanyId` is referenced through the DbContext instance (not a
-    // local variable) so EF re-evaluates it per query instead of baking a snapshot value
-    // into the cached model on first build.
-    private void SetTenantQueryFilter<TEntity>(ModelBuilder modelBuilder)
-        where TEntity : class
+    private void SetTenantQueryFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class
     {
         modelBuilder.Entity<TEntity>()
-            .HasQueryFilter(e => EF.Property<Guid>(e, "CompanyId") == this._tenantContext.CompanyId);
+            .HasQueryFilter(e => EF.Property<Guid>(e, "CompanyId") == _tenantContext.CompanyId);
     }
+
+    // --- Audit Relationships ---
 
     private static void ApplyAuditRelationships(ModelBuilder modelBuilder)
     {
@@ -92,10 +77,44 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
             .OnDelete(DeleteBehavior.SetNull);
     }
 
-    DbSet<T> IDbContext.Set<T>() => Set<T>();
-    public async Task<int> SaveChangesAsync() => await SaveChangesAsync(CancellationToken.None);
-    public override async Task<int> SaveChangesAsync(CancellationToken ct) => await base.SaveChangesAsync(ct);
-    public override int SaveChanges() => base.SaveChanges();
+    // --- Automatic CompanyId Stamping (Shadow & Explicit) ---
+
+    public override int SaveChanges()
+    {
+        StampTenant();
+        return base.SaveChanges();
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        StampTenant();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    // Explicit implementation of IDbContext.SaveChangesAsync() (parameterless)
+    async Task<int> IDbContext.SaveChangesAsync()
+    {
+        return await SaveChangesAsync(CancellationToken.None);
+    }
+
+    private void StampTenant()
+    {
+        var companyId = _tenantContext.CompanyId;
+        if (companyId == Guid.Empty) return; // unauthenticated – fail closed
+
+        foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
+        {
+            var property = entry.Metadata.FindProperty("CompanyId");
+            if (property is null || property.ClrType != typeof(Guid)) continue;
+
+            var current = entry.Property("CompanyId").CurrentValue;
+            if (current is Guid guid && guid != Guid.Empty) continue; // already set (explicit)
+
+            entry.Property("CompanyId").CurrentValue = companyId;
+        }
+    }
+
+    // --- Transaction Support ---
 
     public void BeginTransaction()
     {
@@ -108,7 +127,8 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
         try
         {
             var result = await SaveChangesAsync();
-            await (_currentTransaction?.CommitAsync() ?? Task.CompletedTask);
+            if (_currentTransaction != null)
+                await _currentTransaction.CommitAsync();
             return result;
         }
         catch
@@ -116,7 +136,11 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
             await RollbackAsync();
             throw;
         }
-        finally { _currentTransaction?.Dispose(); _currentTransaction = null; }
+        finally
+        {
+            _currentTransaction?.Dispose();
+            _currentTransaction = null;
+        }
     }
 
     public int Commit()
@@ -132,7 +156,11 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
             Rollback();
             throw;
         }
-        finally { _currentTransaction?.Dispose(); _currentTransaction = null; }
+        finally
+        {
+            _currentTransaction?.Dispose();
+            _currentTransaction = null;
+        }
     }
 
     public void Rollback()
@@ -146,4 +174,8 @@ public class HrmDbContext(DbContextOptions<HrmDbContext> options, ITenantContext
         try { if (_currentTransaction != null) await _currentTransaction.RollbackAsync(); }
         finally { _currentTransaction?.Dispose(); _currentTransaction = null; }
     }
+
+    // --- IDbContext ---
+
+    DbSet<T> IDbContext.Set<T>() => Set<T>();
 }

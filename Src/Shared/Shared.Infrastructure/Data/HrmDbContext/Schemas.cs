@@ -1,4 +1,4 @@
-﻿namespace Shared.Infrastructure.Data.HrmDbContext;
+namespace Shared.Infrastructure.Data.HrmDbContext;
 
 internal class Schemas
 {

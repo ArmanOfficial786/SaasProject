@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design;
 using Shared.Domain.Abstractions;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;

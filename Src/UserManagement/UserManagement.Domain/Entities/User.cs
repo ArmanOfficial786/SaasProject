@@ -5,6 +5,7 @@ namespace UserManagement.Domain.Entities;
 public class User : IdentityUser<Guid>
 
 {
+
     [MaxLength(256)]
     public new string? Email { get; private set; }
     [MaxLength(100)]
