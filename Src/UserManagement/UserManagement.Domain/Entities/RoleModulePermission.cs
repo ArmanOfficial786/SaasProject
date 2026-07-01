@@ -1,5 +1,5 @@
 ﻿namespace UserManagement.Domain.Entities;
-
+//junction table for many to many relationship between Role and ModulePermission
 public class RoleModulePermission
 {
     public Guid RoleId { get; private set; }

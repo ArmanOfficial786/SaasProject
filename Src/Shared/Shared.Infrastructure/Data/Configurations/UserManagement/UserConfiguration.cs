@@ -14,6 +14,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.FullName).HasMaxLength(100);
         builder.Property(u => u.Contact).HasMaxLength(256);
         builder.Property(u => u.PasswordHash).HasMaxLength(256);
+        // Explicit CompanyId property for tenant isolation
         builder.Property(u => u.CompanyId).IsRequired();
 
         builder.HasOne(u => u.EntryBy)
@@ -29,5 +30,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Navigation(u => u.UserStatuses).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
+
 
 

@@ -1,5 +1,5 @@
 ﻿using UserManagement.Domain.Entities.BaseEntities;
-
+//junction table for Agnet and Role
 namespace UserManagement.Domain.Entities;
 
 public class AgentRole : AuditableEntity

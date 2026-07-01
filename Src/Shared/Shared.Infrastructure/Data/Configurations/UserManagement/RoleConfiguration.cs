@@ -8,8 +8,8 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.HasKey(r => r.Id);
         builder.Property(r => r.Id).HasColumnName("RoleId");
-        // Shadow CompanyId
-        builder.Property<Guid>("CompanyId").IsRequired();
+        // Explicit CompanyId property for tenant isolation
+        builder.Property(r => r.CompanyId).IsRequired();
         builder.Property(r => r.Desc).HasMaxLength(500).IsRequired();
 
         builder.HasOne(r => r.EntryBy)
@@ -19,7 +19,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .OnDelete(DeleteBehavior.Restrict);
 
         // Unique constraint per tenant
-        builder.HasIndex("CompanyId", nameof(Role.NormalizedName)).IsUnique();
+        builder.HasIndex(r => new { r.CompanyId, r.NormalizedName }).IsUnique();
 
         builder.Navigation(r => r.RoleModulePermissions).UsePropertyAccessMode(PropertyAccessMode.Field);
     }

@@ -6,6 +6,8 @@ namespace UserManagement.Domain.Entities;
 
 public class Role : IdentityRole<Guid>
 {
+    // Tenant isolation - explicit CompanyId property
+    public Guid CompanyId { get; private set; }
 
     [MaxLength(500)]
     public string Desc { get; private set; }
@@ -26,7 +28,7 @@ public class Role : IdentityRole<Guid>
 
     public Role(string name, string desc)
     {
-        Name = name;
+        Name = name; // ✅ Name is inherited IdentityRole.Name
         Desc = desc;
     }
 

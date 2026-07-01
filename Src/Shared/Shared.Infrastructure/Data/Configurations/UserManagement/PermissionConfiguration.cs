@@ -10,14 +10,14 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         builder.Property(p => p.Id)
             .HasColumnName("PermissionId")
             .ValueGeneratedNever();
-        // Shadow property – no C# member, EF tracks it in metadata.
-        builder.Property<Guid>("CompanyId").IsRequired();
+        // Explicit CompanyId property for tenant isolation
+        builder.Property(p => p.CompanyId).IsRequired();
 
         builder.Property(p => p.Code).HasMaxLength(200).IsRequired();
         builder.Property(p => p.Module).HasMaxLength(100).IsRequired();
         builder.Property(p => p.Description).HasMaxLength(500);
 
-        // Unique constraint on (CompanyId, Code) using shadow property name.
-        builder.HasIndex("CompanyId", nameof(Permission.Code)).IsUnique();
+        // Unique constraint on (CompanyId, Code)
+        builder.HasIndex(p => new { p.CompanyId, p.Code }).IsUnique();
     }
 }

@@ -7,9 +7,7 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
         builder.ToTable("companies");
 
         builder.HasKey(c => c.Id);
-        builder.Property(c => c.Id)
-            .HasColumnName("CompanyId")
-            .ValueGeneratedNever(); // BaseEntity already sets Id = Guid.NewGuid()
+
 
         builder.Property(c => c.Name).HasMaxLength(200).IsRequired();
         builder.Property(c => c.Email).HasMaxLength(256).IsRequired();
@@ -22,12 +20,10 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
         builder.HasIndex(c => c.Pan).IsUnique();
         builder.HasIndex(c => c.RegNo).IsUnique();
 
-        builder.HasMany(c => c.Users)
+        _ = builder
+            .HasMany(c => c.RolesForUser)
             .WithOne()
-            .HasForeignKey(u => u.CompanyId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Navigation(c => c.Users).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(c => c.RolesForUser).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

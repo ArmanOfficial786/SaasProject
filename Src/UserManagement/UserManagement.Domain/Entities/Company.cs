@@ -1,11 +1,10 @@
 ﻿//it's a company
 
-using UserManagement.Domain.Entities.BaseEntities;
-
 namespace UserManagement.Domain.Entities;
 
-public class Company : AuditableEntity
+public class Company
 {
+    public int Id { get; private set; }
     public string? ProductCode { get; private set; }
     public string? Name { get; private set; }
     public string? Email { get; private set; }
@@ -17,11 +16,12 @@ public class Company : AuditableEntity
 
 
     //Navigation
-    private readonly List<User> _users = [];
-    public IReadOnlyCollection<User> Users => _users.AsReadOnly();
 
     private readonly List<CompanyRole> _rolesForUser = [];
     public IReadOnlyCollection<CompanyRole> RolesForUser => _rolesForUser.AsReadOnly();
+
+    private readonly List<Agent> _agents = [];
+    public IReadOnlyCollection<Agent> Agents => _agents.AsReadOnly();
 
     public Company(string name, string email, string address, string phoneNo, string pan, string regNo, string url)
     {
@@ -34,19 +34,19 @@ public class Company : AuditableEntity
         Url = url;
     }
 
-    public void AddTenantRole(CompanyRole role)
+    public void AddCompanyRole(CompanyRole role)
     {
         _rolesForUser.Add(role);
     }
 
-    public void RemoveTenantRole(CompanyRole role)
+    public void RemoveCompanyRole(CompanyRole role)
     {
         _rolesForUser.Remove(role);
     }
 
-    public void AddAgent(User agent)
+    public void AddAgent(Agent agent)
     {
-        _users.Add(agent);
+        _agents.Add(agent);
     }
     private Company() { } // For EF Core
 

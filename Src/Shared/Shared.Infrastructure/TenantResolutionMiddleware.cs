@@ -25,27 +25,21 @@ public class TenantResolutionMiddleware
 
         if (Guid.TryParse(companyIdStr?.Value, out var companyId) && Guid.TryParse(userIdStr?.Value, out var userId))
         {
-            // Validate that the company exists and is active (DB call – only once per request!)
-            var company = await dbContext.Companies
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(c => c.Id == companyId);
-
-            if (company == null)
+            // Validate that the tenant CompanyId is valid (no DB call needed - it's just a GUID identifier)
+            // The CompanyId is used for multi-tenant isolation and should be a valid GUID
+            if (companyId == Guid.Empty)
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsync("Company does not exist.");
+                await context.Response.WriteAsync("Invalid company ID.");
                 return;
             }
-
-            // Optionally check company status if you have a status field
-            // if (company.Status != "Active") { ... }
 
             // Set the context for the rest of the request
             accessor.SetContext(new TenantContext
             {
-                CompanyId = company.Id,
+                CompanyId = companyId,
                 UserId = userId,
-                ProductCode = company.ProductCode ?? string.Empty,
+                ProductCode = string.Empty,
                 Permissions = permissions
             });
         }

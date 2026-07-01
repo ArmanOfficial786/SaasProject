@@ -30,6 +30,9 @@ public class User : IdentityUser<Guid>
     private readonly List<UserStatus> _userStatuses = [];
     public IReadOnlyCollection<UserStatus> UserStatuses => _userStatuses.AsReadOnly();
 
+    private readonly List<AgentUser> _agentUsers = [];
+    public IReadOnlyCollection<AgentUser> AgentUsers => _agentUsers.AsReadOnly();
+
     public User(string? email, string? fullName, string? contact, string? passwordHash, User? entryBy, DateTime entryDate)
     {
         Email = email;

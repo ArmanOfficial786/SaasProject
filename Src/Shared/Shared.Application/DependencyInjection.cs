@@ -1,4 +1,7 @@
-﻿using Shared.Application.Configuration;
+﻿using FluentValidation;
+using MediatR;
+using Shared.Application.Behaviors;
+using Shared.Application.Configuration;
 using Shared.Application.SeedData;
 
 namespace Shared.Application;
@@ -30,7 +33,13 @@ public static class DependencyInjection
         // Register DbInitializer for seeding data
         _ = services.AddScoped<DbInitializer>();
 
+        // Register FluentValidation validators from this assembly
+        _ = services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+        _ = services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        // Register MediatR
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+
         return services;
     }
 }
-

@@ -6,6 +6,9 @@ public abstract class AuditableEntityConfiguration<T> : IEntityTypeConfiguration
 {
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
+        // Configure explicit CompanyId property for tenant isolation
+        builder.Property(e => e.CompanyId).IsRequired();
+
         // Configure the relationship to User for EntryBy
         builder.HasOne(e => e.EntryBy)
                .WithMany()                // User does not have a collection of T

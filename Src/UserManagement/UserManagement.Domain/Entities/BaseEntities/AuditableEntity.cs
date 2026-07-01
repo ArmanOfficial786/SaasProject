@@ -5,6 +5,8 @@ namespace UserManagement.Domain.Entities.BaseEntities;
 
 public abstract class AuditableEntity : BaseEntity
 {
+    // Tenant isolation - explicit CompanyId property
+    public Guid CompanyId { get; set; }
 
     // Foreign keys for audit trail
     public Guid? EntryByUserId { get; private set; }

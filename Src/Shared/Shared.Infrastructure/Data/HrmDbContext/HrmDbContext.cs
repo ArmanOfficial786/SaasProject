@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using Security.Domain.Entities;
 using Shared.Domain.Abstractions;
+using UserManagement.Domain.Entities;
 using UserManagement.Domain.Entities.BaseEntities;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
@@ -13,13 +15,19 @@ public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
     private static readonly MethodInfo SetTenantQueryFilterMethod =
         typeof(HrmDbContext).GetMethod(nameof(SetTenantQueryFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-    public DbSet<Company> Companies => Set<Company>();
+
+    #region User Management
     public DbSet<User> Users => Set<User>();
     public DbSet<Role> Roles => Set<Role>();
-    public DbSet<Permission> Permissions => Set<Permission>();
-    public DbSet<Agent> Agents => Set<Agent>();
-    public DbSet<UserRole> UserRoles => Set<UserRole>();
-    public DbSet<RoleModulePermission> RolePermissions => Set<RoleModulePermission>();
+    public DbSet<Company> Companies => Set<Company>();
+    public DbSet<Security.Domain.Entities.Application> Applications => Set<Security.Domain.Entities.Application>();
+    public DbSet<ModulePermission> ModulePermissions => Set<ModulePermission>();
+    public DbSet<UserManagement.Domain.Entities.Module> Modules => Set<UserManagement.Domain.Entities.Module>();
+    public DbSet<RoleModulePermission> RoleModulePermissions => Set<RoleModulePermission>();
+    public DbSet<UserModulePermission> UserModulePermissions => Set<UserModulePermission>();
+    public DbSet<UserStatus> UserStatuses => Set<UserStatus>();
+    public DbSet<LoginLog> LoginLogs => Set<LoginLog>();
+    #endregion
 
     public HrmDbContext(Microsoft.EntityFrameworkCore.DbContextOptions<HrmDbContext> options, ITenantContext tenantContext)
         : base(options)
@@ -44,7 +52,10 @@ public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
         {
             if (entityType.BaseType != null) continue;          // TPH root only
             if (entityType.IsOwned()) continue;                 // owned types follow owner
-            if (entityType.FindProperty("CompanyId") is null) continue;
+
+            // Check for explicit CompanyId property (not shadow)
+            var companyIdProperty = entityType.FindProperty("CompanyId");
+            if (companyIdProperty is null || companyIdProperty.IsShadowProperty()) continue;
 
             SetTenantQueryFilterMethod
                 .MakeGenericMethod(entityType.ClrType)
@@ -104,13 +115,18 @@ public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
 
         foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
         {
+            // Get the property metadata (both shadow and explicit)
             var property = entry.Metadata.FindProperty("CompanyId");
             if (property is null || property.ClrType != typeof(Guid)) continue;
 
-            var current = entry.Property("CompanyId").CurrentValue;
-            if (current is Guid guid && guid != Guid.Empty) continue; // already set (explicit)
+            // Get the current value
+            var propertyEntry = entry.Property("CompanyId");
+            var current = propertyEntry.CurrentValue;
 
-            entry.Property("CompanyId").CurrentValue = companyId;
+            // Only set if not already set (allows explicit values)
+            if (current is Guid guid && guid != Guid.Empty) continue;
+
+            propertyEntry.CurrentValue = companyId;
         }
     }
 
