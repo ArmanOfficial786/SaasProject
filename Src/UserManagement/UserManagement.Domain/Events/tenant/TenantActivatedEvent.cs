@@ -1,4 +1,5 @@
-﻿using UserManagement.Domain.Entities.BaseEntities;
+﻿
+
 
 namespace UserManagement.Domain.Events.tenant;
 

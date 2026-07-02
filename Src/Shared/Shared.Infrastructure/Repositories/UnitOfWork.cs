@@ -1,99 +1,54 @@
-﻿using AutoMapper;
+﻿using MediatR;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Shared.Application.Interface;
 using Shared.Application.Interfaces;
-using System.Collections;
+using Shared.Application.Interface;
+using Shared.Domain.Abstractions;
 
 namespace Shared.Infrastructure.Repositories;
 
 public class UnitOfWork : IUnitOfWork
 {
     private readonly IDbContext _context;
-    private bool _disposed;
-    private readonly Hashtable _repositories = [];
-    private readonly AutoMapper.IConfigurationProvider _mapperConfig;
-    private readonly IServiceProvider _serviceProvider;
-    public UnitOfWork(IDbContext context, IMapper mapper, IServiceProvider serviceProvider)
+    private readonly IPublisher _publisher;
+    private readonly IConfigurationProvider _mapperConfig;
+    private readonly Dictionary<Type, object> _repositories = [];
+
+    public UnitOfWork(IDbContext context, IPublisher publisher, IConfigurationProvider mapperConfig)
     {
         _context = context;
-        _mapperConfig = mapper.ConfigurationProvider;
-        _serviceProvider = serviceProvider;
+        _publisher = publisher;
+        _mapperConfig = mapperConfig;
+    }
+
+    public IRepository<T> Repository<T>() where T : class
+    {
+        var type = typeof(T);
+        if (!_repositories.ContainsKey(type))
+            _repositories[type] = new GenericRepository<T>(_context, _mapperConfig);
+        return (IRepository<T>)_repositories[type];
     }
 
     public void BeginTransaction()
     {
-        _context.BeginTransaction();
+        var dbContext = _context as Microsoft.EntityFrameworkCore.DbContext;
+        dbContext?.Database.BeginTransaction();
     }
 
     public int Commit()
     {
-        return _context.Commit();
+        return SaveChanges();
     }
 
-    public Task<int> CommitAsync()
+    public async Task<int> CommitAsync()
     {
-        return _context.CommitAsync();
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    public virtual void Dispose(bool disposing)
-    {
-        if (!_disposed && disposing)
-        {
-            _context.Dispose();
-
-            if (_repositories != null && _repositories.Values != null && _repositories.Values.OfType<IDisposable>().Any())
-            {
-                foreach (IDisposable repository in _repositories.Values)
-                {
-                    repository.Dispose();
-                }
-            }
-        }
-        _disposed = true;
-        GC.SuppressFinalize(this);
-    }
-
-    public IRepository<TEntity> Repository<TEntity>() where TEntity : class
-    {
-        var type = typeof(TEntity).Name;
-        var repo = _repositories[type];
-        if (_repositories.ContainsKey(type) && repo != null)
-            return (IRepository<TEntity>)repo;
-        else
-        {
-            var repositoryType = typeof(GenericRepository<>);
-            IRepository<TEntity>? newRepo;
-            try
-            {
-                newRepo = _serviceProvider.GetService<IRepository<TEntity>>();
-            }
-            catch (InvalidOperationException)
-            {
-                newRepo = null;
-            }
-
-            if (newRepo != null)
-                _repositories.Add(type, newRepo);
-            else
-                _repositories.Add(type, Activator.CreateInstance(repositoryType.MakeGenericType(typeof(TEntity)), _context, _mapperConfig));
-            repo = _repositories[type];
-            if (repo != null)
-                return (IRepository<TEntity>)repo;
-            else
-                throw new Exception("Repository could not be added");
-        }
+        return await SaveChangesAsync();
     }
 
     public void Rollback()
     {
-        _context.Rollback();
+        var dbContext = _context as Microsoft.EntityFrameworkCore.DbContext;
+        dbContext?.Database.RollbackTransaction();
     }
 
     public int SaveChanges()
@@ -101,13 +56,43 @@ public class UnitOfWork : IUnitOfWork
         return _context.SaveChanges();
     }
 
-    public Task<int> SaveChangesAsync()
+    // FIX #3: snapshot events BEFORE saving, dispatch AFTER.
+    // If SaveChangesAsync fails, no event is published.
+    // If publishing fails, the user record is already safe in DB and you can replay the event.
+    public async Task<int> SaveChangesAsync()
     {
-        return _context.SaveChangesAsync();
+        return await SaveChangesAsync(CancellationToken.None);
     }
 
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return _context.SaveChangesAsync(cancellationToken);
+        var dbContext = _context as Microsoft.EntityFrameworkCore.DbContext;
+        if (dbContext == null)
+            return 0;
+
+        var entitiesWithEvents = dbContext.ChangeTracker.Entries()
+            .Select(e => e.Entity)
+            .OfType<IHasDomainEvents>()
+            .Where(e => e.DomainEvents.Count > 0)
+            .ToList();
+
+        // Commit first
+        var result = await dbContext.SaveChangesAsync(cancellationToken);
+
+        // Dispatch after commit
+        foreach (var entity in entitiesWithEvents)
+        {
+            var events = entity.DomainEvents.ToList();
+            entity.ClearDomainEvents();
+            foreach (var domainEvent in events)
+                await _publisher.Publish(domainEvent, cancellationToken);
+        }
+
+        return result;
+    }
+
+    public void Dispose()
+    {
+        (_context as IDisposable)?.Dispose();
     }
 }

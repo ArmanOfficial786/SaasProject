@@ -9,18 +9,9 @@ public abstract class AuditableEntityConfiguration<T> : IEntityTypeConfiguration
         // Configure explicit CompanyId property for tenant isolation
         builder.Property(e => e.CompanyId).IsRequired();
 
-        // Configure the relationship to User for EntryBy
-        builder.HasOne(e => e.EntryBy)
-               .WithMany()                // User does not have a collection of T
-               .HasForeignKey(e => e.EntryByUserId)
-               .IsRequired(false)
-               .OnDelete(DeleteBehavior.SetNull);
-
-        // Configure the relationship to User for UpdatedBy
-        builder.HasOne(e => e.UpdatedBy)
-               .WithMany()
-               .HasForeignKey(e => e.UpdatedByUserId)
-               .IsRequired(false)
-               .OnDelete(DeleteBehavior.SetNull);
+        // FIX #2: EntryByUserId and UpdatedByUserId are scalar FKs, not navigation properties.
+        // No explicit HasOne relationships needed; EF will infer from the FK properties.
+        builder.Property(e => e.EntryByUserId).IsRequired(false);
+        builder.Property(e => e.UpdatedByUserId).IsRequired(false);
     }
 }

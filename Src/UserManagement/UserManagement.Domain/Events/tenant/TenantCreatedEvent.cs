@@ -1,6 +1,4 @@
-﻿using UserManagement.Domain.Entities.BaseEntities;
-
-namespace UserManagement.Domain.Events.tenant;
+﻿namespace UserManagement.Domain.Events.tenant;
 
 public class TenantCreatedEvent : BaseEvent
 {

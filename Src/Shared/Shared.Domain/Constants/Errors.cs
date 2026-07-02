@@ -20,4 +20,6 @@ public class Errors
 
     public static ErrorDTO Exception(Exception ex) =>
  new("9998", ex.InnerException?.Message ?? ex.Message);
+    public static ErrorDTO RoleIsRequired = new("1002", "Please Assign Valid Role");
+    public static ErrorDTO AgentNotFoundForBranch = new("3000", "Provided Agent Not Found");
 }

@@ -2,34 +2,34 @@
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-
     public void Configure(EntityTypeBuilder<User> builder)
     {
         builder.ToTable("users");
-
         builder.HasKey(u => u.Id);
-        builder.Property(u => u.Id).HasColumnName("UserId"); // EF default Guid generation on add
+        builder.Property(u => u.Id).HasColumnName("UserId");
 
+        builder.Property(u => u.FirstName).HasMaxLength(30);
+        builder.Property(u => u.MiddleName).HasMaxLength(30);
+        builder.Property(u => u.LastName).HasMaxLength(30);
         builder.Property(u => u.Email).HasMaxLength(256);
-        builder.Property(u => u.FullName).HasMaxLength(100);
         builder.Property(u => u.Contact).HasMaxLength(256);
-        builder.Property(u => u.PasswordHash).HasMaxLength(256);
-        // Explicit CompanyId property for tenant isolation
         builder.Property(u => u.CompanyId).IsRequired();
 
-        builder.HasOne(u => u.EntryBy)
+        // FIX #2: Map EntryByUserId scalar to FK column, no navigation
+        builder.Property(u => u.EntryByUserId).HasColumnName("EntryByUserId");
+        builder.HasOne<User>()
             .WithMany()
-            .HasForeignKey("EntryByUserId")
+            .HasForeignKey(u => u.EntryByUserId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(u => new { u.CompanyId, u.NormalizedEmail }).IsUnique();
 
+        // Field-access collections (private backing lists)
         builder.Navigation(u => u.UserRoles).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(u => u.UserPermissions).UsePropertyAccessMode(PropertyAccessMode.Field);
         builder.Navigation(u => u.UserStatuses).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(u => u.AgentUsers).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(u => u.UserModulePermissions).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
-
-
 

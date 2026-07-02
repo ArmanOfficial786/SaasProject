@@ -1,7 +1,5 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Shared.Domain.Abstractions;
-using UserManagement.Domain.Entities.BaseEntities;
+﻿
+
 using EfDbContext = Microsoft.EntityFrameworkCore.DbContext;
 
 namespace Shared.Infrastructure.Data.Interceptors;
@@ -40,7 +38,7 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
             .ToList();
 
         var domainEvents = entities
-            .SelectMany(e => e.DomainEvents)
+            .SelectMany<BaseEntity, object>(e => e.DomainEvents)
             .ToList();
 
         entities.ForEach(e => e.ClearDomainEvents());

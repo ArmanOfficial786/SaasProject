@@ -1,24 +1,29 @@
-﻿using System.Reflection;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shared.Application.Interfaces;
 using Security.Domain.Entities;
-using Shared.Domain.Abstractions;
 using UserManagement.Domain.Entities;
-using UserManagement.Domain.Entities.BaseEntities;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
 
-public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
+public class HrmDbContext : IdentityDbContext<User, Role, Guid>, IDbContext
 {
-    private readonly ITenantContext _tenantContext;
+    //private readonly ITenantContext _tenantContext;
     private IDbContextTransaction? _currentTransaction;
 
-    // Cached MethodInfo for the generic tenant filter
-    private static readonly MethodInfo SetTenantQueryFilterMethod =
-        typeof(HrmDbContext).GetMethod(nameof(SetTenantQueryFilter), BindingFlags.NonPublic | BindingFlags.Instance)!;
+    public HrmDbContext(Microsoft.EntityFrameworkCore.DbContextOptions<HrmDbContext> options)
+       : base(options)
+    {
 
+    }
 
     #region User Management
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Role> Roles => Set<Role>();
+    public new DbSet<User> Users => Set<User>();
+    public new DbSet<Role> Roles => Set<Role>();
     public DbSet<Company> Companies => Set<Company>();
     public DbSet<Security.Domain.Entities.Application> Applications => Set<Security.Domain.Entities.Application>();
     public DbSet<ModulePermission> ModulePermissions => Set<ModulePermission>();
@@ -29,78 +34,21 @@ public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
     public DbSet<LoginLog> LoginLogs => Set<LoginLog>();
     #endregion
 
-    public HrmDbContext(Microsoft.EntityFrameworkCore.DbContextOptions<HrmDbContext> options, ITenantContext tenantContext)
-        : base(options)
-    {
-        _tenantContext = tenantContext;
-    }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        // Picks up all IEntityTypeConfiguration<T> classes in this assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrmDbContext).Assembly);
 
-        ApplyAuditRelationships(modelBuilder);
-        ApplyTenantQueryFiltersByConvention(modelBuilder);
+
     }
 
-    // --- Tenant Filter ---
+    // ── IDbContext ────────────────────────────────────────────────────────────────────────────────────────────
 
-    private void ApplyTenantQueryFiltersByConvention(ModelBuilder modelBuilder)
-    {
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            if (entityType.BaseType != null) continue;          // TPH root only
-            if (entityType.IsOwned()) continue;                 // owned types follow owner
+    DbSet<T> IDbContext.Set<T>() => Set<T>();
 
-            // Check for explicit CompanyId property (not shadow)
-            var companyIdProperty = entityType.FindProperty("CompanyId");
-            if (companyIdProperty is null || companyIdProperty.IsShadowProperty()) continue;
-
-            SetTenantQueryFilterMethod
-                .MakeGenericMethod(entityType.ClrType)
-                .Invoke(this, [modelBuilder]);
-        }
-    }
-
-    private void SetTenantQueryFilter<TEntity>(ModelBuilder modelBuilder) where TEntity : class
-    {
-        modelBuilder.Entity<TEntity>()
-            .HasQueryFilter(e => EF.Property<Guid>(e, "CompanyId") == _tenantContext.CompanyId);
-    }
-
-    // --- Audit Relationships ---
-
-    private static void ApplyAuditRelationships(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<User>()
-            .HasMany<AuditableEntity>()
-            .WithOne(ae => ae.EntryBy)
-            .HasForeignKey(ae => ae.EntryByUserId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.SetNull);
-
-        modelBuilder.Entity<User>()
-            .HasMany<AuditableEntity>()
-            .WithOne(ae => ae.UpdatedBy)
-            .HasForeignKey(ae => ae.UpdatedByUserId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.SetNull);
-    }
-
-    // --- Automatic CompanyId Stamping (Shadow & Explicit) ---
-
-    public override int SaveChanges()
-    {
-        StampTenant();
-        return base.SaveChanges();
-    }
-
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        StampTenant();
-        return await base.SaveChangesAsync(cancellationToken);
-    }
 
     // Explicit implementation of IDbContext.SaveChangesAsync() (parameterless)
     async Task<int> IDbContext.SaveChangesAsync()
@@ -108,34 +56,22 @@ public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
         return await SaveChangesAsync(CancellationToken.None);
     }
 
-    private void StampTenant()
+    // Public SaveChanges overload for IDbContext
+    public override int SaveChanges()
     {
-        var companyId = _tenantContext.CompanyId;
-        if (companyId == Guid.Empty) return; // unauthenticated – fail closed
-
-        foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Added))
-        {
-            // Get the property metadata (both shadow and explicit)
-            var property = entry.Metadata.FindProperty("CompanyId");
-            if (property is null || property.ClrType != typeof(Guid)) continue;
-
-            // Get the current value
-            var propertyEntry = entry.Property("CompanyId");
-            var current = propertyEntry.CurrentValue;
-
-            // Only set if not already set (allows explicit values)
-            if (current is Guid guid && guid != Guid.Empty) continue;
-
-            propertyEntry.CurrentValue = companyId;
-        }
+        return base.SaveChanges();
     }
 
-    // --- Transaction Support ---
+    // Public SaveChangesAsync overload for IDbContext
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return await base.SaveChangesAsync(cancellationToken);
+    }
 
     public void BeginTransaction()
     {
         if (_currentTransaction != null) return;
-        _currentTransaction = Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
+        _currentTransaction = this.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted);
     }
 
     public async Task<int> CommitAsync()
@@ -191,7 +127,8 @@ public class HrmDbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
         finally { _currentTransaction?.Dispose(); _currentTransaction = null; }
     }
 
-    // --- IDbContext ---
-
-    DbSet<T> IDbContext.Set<T>() => Set<T>();
+    public new void Dispose()
+    {
+        base.Dispose();
+    }
 }

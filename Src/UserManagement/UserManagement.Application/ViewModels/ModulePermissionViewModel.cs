@@ -1,32 +1,22 @@
-﻿
-using System.Text.Json.Serialization;
-using Security.Domain.Entities;
+﻿using AutoMapper;
+using UserManagement.Domain.Entities;
 
 namespace UserManagement.Application.ViewModels;
 
 public class ModulePermissionViewModel
 {
-    public Guid Id { get; private set; }
-    public string? ModuleName { get; private set; }
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public Permission Permission { get; private set; }
+    public Guid Id { get; set; }
+    public string? Code { get; set; }
+    public string? Description { get; set; }
 
     private class Mapping : Profile
     {
         public Mapping()
         {
-            _ = CreateMap<RoleModulePermission, ModulePermissionViewModel>()
-                .ForMember(x => x.Id, options => options.MapFrom(prop => prop.ModulePermissionId))
-                .ForMember(x => x.Permission, options => options.MapFrom(prop => prop.ModulePermission.Permission));
-
-            _ = CreateMap<ModulePermission, ModulePermissionViewModel>();
-
-            _ = CreateMap<UserModulePermission, ModulePermissionViewModel>()
-                .ForMember(x => x.Id, options => options.MapFrom(prop => prop.ModulePermissionId))
-                .ForMember(x => x.Permission, options => options.MapFrom(prop => prop.ModulePermission.Permission))
-                .ForMember(x => x.ModuleName, options => options.MapFrom(prop => prop.ModulePermission.Module.Name))
-                ;
-
+            CreateMap<UserModulePermission, ModulePermissionViewModel>()
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.ModulePermission!.Id))
+                .ForMember(d => d.Code, o => o.MapFrom(s => s.ModulePermission!.ModuleId.ToString()))
+                .ForMember(d => d.Description, o => o.MapFrom(s => s.ModulePermission!.Permission.ToString()));
         }
     }
 }

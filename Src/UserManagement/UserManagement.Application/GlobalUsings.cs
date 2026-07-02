@@ -1,4 +1,12 @@
-﻿global using AutoMapper;
+﻿global using System.Text.Json.Serialization;
+global using AutoMapper;
 global using FluentValidation;
+global using MediatR;
+global using Microsoft.AspNetCore.Identity;
+global using Shared.Application.Configuration;
+global using Shared.Application.Interfaces;
+global using Shared.Domain.Constants;
+global using Shared.Domain.DTOs;
+global using UserManagement.Application.ViewModels;
 global using UserManagement.Domain.Entities;
 global using Permission = UserManagement.Domain.Enum.Permission;

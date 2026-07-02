@@ -1,6 +1,6 @@
 ﻿
 using Shared.Application.SeedData;
-using Shared.Domain.Abstractions;
+using Shared.Infrastructure.Service;
 
 
 namespace Shared.Infrastructure;
@@ -9,23 +9,22 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddSharedInfrastructure(this IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<DbInitializer>();
 
         // Register MediatR
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
-        // Register ITenantContext with a default implementation
-        services.AddScoped<ITenantContext>(provider => new TenantContext());
+
         // Register the domain events interceptor (shared across all DbContexts)
         services.AddScoped<DispatchDomainEventsInterceptor>();
 
         // Register AutoMapper - scan all assemblies for profiles
         services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
 
-        //Register for tenant context accessor
-        services.AddScoped<TenantContext>();
-        services.AddScoped<ITenantContext>(sp => sp.GetRequiredService<TenantContext>());
+
 
         return services;
     }

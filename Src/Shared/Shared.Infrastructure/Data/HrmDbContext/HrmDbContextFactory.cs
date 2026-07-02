@@ -1,5 +1,4 @@
-using Microsoft.EntityFrameworkCore.Design;
-using Shared.Domain.Abstractions;
+﻿using Microsoft.EntityFrameworkCore.Design;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
 
@@ -19,24 +18,9 @@ public class HrmDbContextFactory : IDesignTimeDbContextFactory<HrmDbContext>
 
         optionsBuilder.UseSqlServer(connectionString);
 
-        // Create a mock ITenantContext for design-time
-        // This allows migrations to be created without a full dependency injection container
-        var tenantContext = new DesignTimeTenantContext();
 
-        return new HrmDbContext(
-            optionsBuilder.Options,
-            tenantContext
-        );
+
+        // ITenantContext gone — constructor takes only DbContextOptions now.
+        return new HrmDbContext(optionsBuilder.Options);
     }
-}
-
-/// <summary>
-/// Mock implementation of ITenantContext for design-time database operations
-/// </summary>
-internal class DesignTimeTenantContext : ITenantContext
-{
-    public Guid CompanyId => Guid.Empty;
-    public Guid UserId => Guid.Empty;
-    public string ProductCode => "design-time";
-    public IReadOnlyList<string> Permissions => new List<string>();
 }

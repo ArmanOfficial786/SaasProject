@@ -42,7 +42,7 @@ public class Agent : AuditableEntity
        string referralCode,
        CompanyRole? role,
        Company company,
-       Guid companyId
+       int companyId
 
    )
     {
@@ -81,7 +81,7 @@ public class Agent : AuditableEntity
 
     public void AddUser(User user)
     {
-        _agentUsers.Add(new AgentUser(user, this));
+        _agentUsers.Add(new AgentUser(user.Id, Id));
     }
     public string CreateReferralCode(string agentName)
     {

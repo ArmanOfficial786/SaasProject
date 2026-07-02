@@ -1,6 +1,4 @@
-﻿using UserManagement.Domain.Entities.BaseEntities;
-
-namespace UserManagement.Domain.Events.user;
+﻿namespace UserManagement.Domain.Events.user;
 
 public class UserLoggedInEvent : BaseEvent
 {

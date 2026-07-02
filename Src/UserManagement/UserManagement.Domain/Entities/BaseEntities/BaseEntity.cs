@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Shared.Domain.Abstractions;
 
 namespace UserManagement.Domain.Entities.BaseEntities;
 
-public abstract class BaseEntity
+public abstract class BaseEntity : IHasDomainEvents
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
