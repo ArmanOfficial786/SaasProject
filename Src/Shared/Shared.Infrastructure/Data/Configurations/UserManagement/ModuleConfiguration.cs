@@ -8,7 +8,9 @@ public class ModuleConfiguration : IEntityTypeConfiguration<Module>
     public void Configure(EntityTypeBuilder<Module> builder)
     {
         _ = builder.ToTable("modules", Schemas.UserManagement);
-
+        // Explicit key — don't rely purely on convention once there's any
+        // chance of type ambiguity in this file
+        builder.HasKey(m => m.Id);
         var seedModules = new List<Module>
         {
             SeedModule.AgentRole,

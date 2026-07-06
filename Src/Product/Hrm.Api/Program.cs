@@ -46,7 +46,12 @@ public static class Program
         // Shared.Application (MediatR, AutoMapper, etc.)
         builder.Services.AddSharedApplication(builder.Configuration);
         // Shared DbContext (HrmDbContext) – the central database context
-        builder.Services.AddHrmDbContext(builder.Configuration.GetConnectionString("DefaultConnection")!);
+        builder.Services.AddHrmDbContext(builder.Configuration.GetConnectionString("HrmConnection")!);
+        // Identity — bound specifically to HrmDbContext for this host
+        builder.Services.AddIdentityInfrastructure<HrmDbContext>();
+        // JWT bearer authentication — context-agnostic
+        builder.Services.AddJwtAuthentication(builder.Configuration);
+
         // UserManagement Application (Commands, Handlers, AutoMapper profiles)
         builder.Services.AddApplication();
 

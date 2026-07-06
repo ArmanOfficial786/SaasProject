@@ -1,6 +1,6 @@
 ﻿namespace UserManagement.Domain.Enum;
 
-public enum Permission
+public enum PermissionEnum
 {
     Read,
     Write,

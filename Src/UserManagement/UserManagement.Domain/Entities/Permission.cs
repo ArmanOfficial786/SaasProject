@@ -1,6 +1,4 @@
-﻿using UserManagement.Domain.Entities.BaseEntities;
-
-namespace UserManagement.Domain.Entities;
+﻿namespace UserManagement.Domain.Entities;
 
 public class Permission : BaseEntity
 {

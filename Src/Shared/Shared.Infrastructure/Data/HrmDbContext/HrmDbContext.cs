@@ -1,12 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Shared.Application.Interfaces;
-using Security.Domain.Entities;
-using UserManagement.Domain.Entities;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Shared.Domain.Abstractions;
 
 namespace Shared.Infrastructure.Data.HrmDbContext;
 
@@ -38,9 +31,20 @@ public class HrmDbContext : IdentityDbContext<User, Role, Guid>, IDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        // Domain events — transient, never persisted
+        modelBuilder.Ignore<BaseEvent>();
+
+        // Reflection metadata accidentally reachable from an entity graph —
+        // never intended to be persisted; see comment below re: root cause
+        modelBuilder.Ignore<System.Reflection.CustomAttributeData>();
+        modelBuilder.Ignore<System.Reflection.MemberInfo>();
+        modelBuilder.Ignore<System.Reflection.Module>();
+        modelBuilder.Ignore<Type>();
+
         // Picks up all IEntityTypeConfiguration<T> classes in this assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrmDbContext).Assembly);
+        base.OnModelCreating(modelBuilder);
+
 
 
     }

@@ -9,4 +9,4 @@ global using Shared.Domain.Constants;
 global using Shared.Domain.DTOs;
 global using UserManagement.Application.ViewModels;
 global using UserManagement.Domain.Entities;
-global using Permission = UserManagement.Domain.Enum.Permission;
+global using Permission = UserManagement.Domain.Enum.PermissionEnum;

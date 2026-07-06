@@ -1,7 +1,4 @@
-﻿using UserManagement.Domain.Enum;
-using PermissionEnum = UserManagement.Domain.Enum.Permission;
-
-namespace Shared.Infrastructure.Data.Configurations.UserManagement;
+﻿namespace Shared.Infrastructure.Data.Configurations.UserManagement;
 
 public class ModulePermissionConfiguration : IEntityTypeConfiguration<ModulePermission>
 {
@@ -14,6 +11,15 @@ public class ModulePermissionConfiguration : IEntityTypeConfiguration<ModulePerm
                 x.Id,
                 x.Permission,
             });
+
+        builder.Property(x => x.Permission)
+         .HasConversion<string>()
+         .HasMaxLength(50)
+         .IsRequired();
+
+        builder.HasOne(x => x.Module)
+            .WithMany(m => m.ModulePermissions)
+            .HasForeignKey(x => x.ModuleId);
 
         // Note: Seed data will be added through migration or by other means
         // as ModulePermission requires proper Permission entity references

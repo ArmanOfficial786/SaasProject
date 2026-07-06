@@ -1,30 +1,37 @@
-﻿
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Shared.Application.SeedData;
 using Shared.Infrastructure.Service;
-
+using Shared.Infrastructure.Services;
 
 namespace Shared.Infrastructure;
 
 public static class DependencyInjection
 {
+    // Context-agnostic — safe to call once per host, regardless of which DbContext it uses.
+    // This is the ONLY place AddAutoMapper is called across the whole solution —
+    // it scans every loaded assembly, so module-specific profiles (UserManagement,
+    // Hrm, School, ...) are all picked up from here without needing their own call.
     public static IServiceCollection AddSharedInfrastructure(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<DbInitializer>();
+        services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
 
-        // Register MediatR
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+        services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
-
-        // Register the domain events interceptor (shared across all DbContexts)
-        services.AddScoped<DispatchDomainEventsInterceptor>();
-
-        // Register AutoMapper - scan all assemblies for profiles
         services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
 
-
+        //to do : add email service
+        //services.AddTransient<IEmailService, EmailService>();
+        services.AddTransient<IHashService, HashService>();
+        services.AddTransient<IFileService, LocalStorageFileService>();
 
         return services;
     }
@@ -32,34 +39,65 @@ public static class DependencyInjection
     public static IServiceCollection AddHrmDbContext(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<HrmDbContext>((sp, options) =>
-        {
             options.UseSqlServer(connectionString)
-                   .AddInterceptors(sp.GetRequiredService<DispatchDomainEventsInterceptor>());
-        });
+                   .AddInterceptors(sp.GetRequiredService<ISaveChangesInterceptor>()));
 
-        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<HrmDbContext>());
-
-        //services.AddDbContext<HrmDbContext>(options =>
-        //    options.UseSqlServer(connectionString));
-
-        //services.AddScoped<IDbContext>(provider => provider.GetRequiredService<HrmDbContext>());
+        services.AddScoped<IDbContext>(sp => sp.GetRequiredService<HrmDbContext>());
         return services;
     }
 
     public static IServiceCollection AddSchoolDbContext(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<SchoolDbContext>((sp, options) =>
-        {
             options.UseSqlServer(connectionString)
-                   .AddInterceptors(sp.GetRequiredService<DispatchDomainEventsInterceptor>());
-        });
+                   .AddInterceptors(sp.GetRequiredService<ISaveChangesInterceptor>()));
 
-        services.AddScoped<IDbContext>(provider => provider.GetRequiredService<SchoolDbContext>());
+        services.AddScoped<IDbContext>(sp => sp.GetRequiredService<SchoolDbContext>());
+        return services;
+    }
 
-        //services.AddDbContext<SchoolDbContext>(options =>
-        //    options.UseSqlServer(connectionString));
+    // Generic ONLY here — this is the one place the type parameter earns its keep
+    public static IServiceCollection AddIdentityInfrastructure<TContext>(this IServiceCollection services)
+        where TContext : Microsoft.EntityFrameworkCore.DbContext
+    {
+        services.AddIdentity<User, Role>(options =>
+        {
+            options.Password.RequireDigit = false;
+            options.Password.RequiredLength = 6;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireLowercase = false;
+        })
+        .AddEntityFrameworkStores<TContext>()
+        .AddDefaultTokenProviders();
 
-        //services.AddScoped<IDbContext>(provider => provider.GetRequiredService<SchoolDbContext>());
+        services.AddScoped<ITokenClaimsService, IdentityTokenClaimService>();
+        return services;
+    }
+
+    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = configuration["AppConfig:ApiURL"],
+            ValidAudience = configuration["AppConfig:WebURL"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(configuration["AppConfig:ApiKey"]!))
+        };
+
+        services.AddSingleton(tokenValidationParameters);
+
+        services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options => options.TokenValidationParameters = tokenValidationParameters);
+
         return services;
     }
 }
