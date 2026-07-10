@@ -14,7 +14,7 @@ public class HrmDbContextFactory : IDesignTimeDbContextFactory<HrmDbContext>
 
         // Use a default connection string for design-time operations
         // This connection string should match your development database
-        var connectionString = "Server=localhost\\SQLEXPRESS;Database=saas_hrm_db1;User Id=sa;password=cosys123;TrustServerCertificate=True;";
+        var connectionString = "Server=localhost\\SQLEXPRESS;Database=saas_hrm_db2;User Id=sa;password=cosys123;TrustServerCertificate=True;";
 
         optionsBuilder.UseSqlServer(connectionString);
 

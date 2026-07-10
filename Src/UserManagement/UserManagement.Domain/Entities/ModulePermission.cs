@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-
-namespace UserManagement.Domain.Entities;
+﻿namespace UserManagement.Domain.Entities;
 
 public class ModulePermission
 {
@@ -10,9 +7,10 @@ public class ModulePermission
     public Module Module { get; private set; } = null!;
     public PermissionEnum Permission { get; private set; }
 
-    private readonly List<Role> _roles = [];
-    [NotMapped]
-    public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
+    // ✅ Navigation to the junction table
+    private readonly List<RoleModulePermission> _roleModulePermissions = [];
+    public IReadOnlyCollection<RoleModulePermission> RoleModulePermissions =>
+        _roleModulePermissions.AsReadOnly();
 
     public ModulePermission(Guid id, Guid moduleId, PermissionEnum permission)
     {

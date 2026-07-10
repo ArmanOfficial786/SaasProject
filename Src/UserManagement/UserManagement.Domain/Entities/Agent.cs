@@ -4,9 +4,6 @@
 //| Pokhara Branch | Teller |
 //| Head Office | Admin, Manager, Auditor |
 
-
-using UserManagement.Domain.Entities.BaseEntities;
-
 namespace UserManagement.Domain.Entities;
 
 public class Agent : AuditableEntity
@@ -27,8 +24,8 @@ public class Agent : AuditableEntity
     public IReadOnlyCollection<AgentUser> AgentUsers => _agentUsers.AsReadOnly();
     private readonly List<AgentRole> _rolesForUser = [];
     public IReadOnlyCollection<AgentRole> RolesForUser => _rolesForUser.AsReadOnly();
-    public CompanyRole? Role { get; private set; }
-    public required Company Company { get; set; }
+
+    public Company? Company { get; set; }
 
     public Agent() { }
 
@@ -40,8 +37,7 @@ public class Agent : AuditableEntity
        string regNo,
        bool isParent,
        string referralCode,
-       CompanyRole? role,
-       Company company,
+       //Company company,
        int companyId
 
    )
@@ -51,11 +47,12 @@ public class Agent : AuditableEntity
         Pan = pan;
         RegNo = regNo;
         IsParent = isParent;
-        Company = company;
+        // Company = company;
         CompanyId = companyId; // Initialize explicit CompanyId for tenant isolation
         ReferralCode = referralCode ?? CreateReferralCode(name);
-        Role = role;
     }
+
+
 
     public void AddAgentRole(AgentRole role)
     {
@@ -67,8 +64,7 @@ public class Agent : AuditableEntity
         string address,
         string pan,
         string referralCode,
-        string regNo,
-        CompanyRole? role
+        string regNo
     )
     {
         Name = name;
@@ -76,7 +72,7 @@ public class Agent : AuditableEntity
         Pan = pan;
         ReferralCode = referralCode ?? CreateReferralCode(name);
         RegNo = regNo;
-        Role = role;
+        // Role = role;
     }
 
     public void AddUser(User user)
@@ -85,7 +81,7 @@ public class Agent : AuditableEntity
     }
     public string CreateReferralCode(string agentName)
     {
-        var companyId = Company.Id.ToString();
+        var companyId = Company?.Id.ToString();
         var regNo = RegNo?.Substring(0, 4) ?? "0000";
         var name = agentName.Replace(" ", "-").ToLower();
         var refName = name + companyId + regNo;

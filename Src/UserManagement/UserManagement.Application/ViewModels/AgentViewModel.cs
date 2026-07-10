@@ -9,8 +9,7 @@ public class AgentViewModel
     public string? RegNo { get; private set; }
     public bool IsParent { get; private set; }
     public string? ReferralCode { get; private set; }
-    public Guid RoleId { get; private set; }
-    public string? RoleName { get; private set; }
+    public List<string> RoleNames { get; set; } = [];
 
     public AgentViewModel() { }
 
@@ -20,8 +19,8 @@ public class AgentViewModel
         {
             CreateMap<Agent, AgentViewModel>()
                 .ForMember(dest => dest.agentId, options => options.MapFrom(src => src.Id))
-                .ForMember(dest => dest.RoleId, options => options.MapFrom(src => src.Role != null ? src.Role.Id : Guid.Empty))
-                .ForMember(dest => dest.RoleName, options => options.MapFrom(src => src.Role != null ? src.Role!.Role!.Name : string.Empty));
+                .ForMember(dest => dest.RoleNames, options => options.MapFrom(src => src.RolesForUser.Select(r => r.Role.Name).ToList()));
+
         }
     }
 

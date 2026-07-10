@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shared.Application;
+using Shared.Application.SeedData;
 using Shared.Infrastructure;
 using Shared.Infrastructure.Data.HrmDbContext;
 using UserManagement.Application;
@@ -74,6 +75,10 @@ public static class Program
         {
             var db = scope.ServiceProvider.GetRequiredService<HrmDbContext>();
             db.Database.Migrate();
+
+            // Seed runtime-dependent data (Users with password hashing, UserRoles, AgentUser, AgentRole)
+            var dbInitializer = scope.ServiceProvider.GetRequiredService<DbInitializer>();
+            dbInitializer.SeedAsync().GetAwaiter().GetResult();
         }
         _ = app.UseHttpsRedirection();
 

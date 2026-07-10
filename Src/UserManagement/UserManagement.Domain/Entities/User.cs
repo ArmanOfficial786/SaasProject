@@ -172,12 +172,11 @@ public class User : IdentityUser<Guid>, IHasDomainEvents
 
     private User() { }
 
-    public User(Company company, string userName, string firstName, string? middleName,
+    public User(int companyId, string userName, string firstName, string? middleName,
                 string lastName, string email, string? contact, Guid? entryByUserId)
     {
         Id = Guid.NewGuid();
-        Company = company;
-        CompanyId = company.Id;
+        CompanyId = companyId;
         UserName = userName;
         FirstName = firstName;
         MiddleName = middleName;

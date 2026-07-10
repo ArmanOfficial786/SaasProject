@@ -3,14 +3,14 @@
 public class RoleModulePermission
 {
     public Guid RoleId { get; private set; }
-    public Role Role { get; private set; }
+    public Role Role { get; private set; } = null!;
     public Guid ModulePermissionId { get; private set; }
-    public ModulePermission ModulePermission { get; private set; }
+    public ModulePermission ModulePermission { get; private set; } = null!;
 
-    public RoleModulePermission(Role role, ModulePermission modulePermission)
+    public RoleModulePermission(Guid roleId, Guid modulePermissionId)
     {
-        Role = role;
-        ModulePermission = modulePermission;
+        RoleId = roleId;
+        ModulePermissionId = modulePermissionId;
     }
 
 #pragma warning disable CS8618

@@ -6,12 +6,9 @@ public class AgentConfiguration : IEntityTypeConfiguration<Agent>
     {
         _ = builder.ToTable("agents", Schemas.UserManagement);
 
-        // Configure CompanyId for tenant isolation
-        _ = builder.Property(x => x.CompanyId).IsRequired();
+        _ = builder.HasKey(a => a.Id);
 
-        _ = builder.HasOne(x => x.Role)
-            .WithMany()
-            .OnDelete(DeleteBehavior.Restrict);
+        _ = builder.Property(x => x.CompanyId).IsRequired();
 
         _ = builder.HasMany(x => x.RolesForUser)
             .WithOne()
@@ -19,6 +16,11 @@ public class AgentConfiguration : IEntityTypeConfiguration<Agent>
         _ = builder.HasIndex(x => x.ReferralCode)
             .IsUnique();
 
+        // Seed data
+        //var seedAgents = new List<Agent>();
+        //builder.HasData(seedAgents);
+
+        // ✅ Tenant: Agent belongs to a Company
         _ = builder.HasOne(x => x.Company)
             .WithMany(x => x.Agents)
             .HasForeignKey("CompanyId")

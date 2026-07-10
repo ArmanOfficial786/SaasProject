@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\UserManagement\UserManagement.Api\UserManagement.Api.csproj" />
     <ProjectReference Include="..\..\UserManagement\UserManagement.Application\UserManagement.Application.csproj" />
     <ProjectReference Include="..\..\UserManagement\UserManagement.Infrastructure\UserManagement.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Shared\Shared.Infrastructure\Shared.Infrastructure.csproj" />

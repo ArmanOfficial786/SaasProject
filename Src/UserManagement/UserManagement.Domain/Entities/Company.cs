@@ -17,8 +17,15 @@ public class Company
 
     //Navigation
 
-    private readonly List<CompanyRole> _rolesForUser = [];
-    public IReadOnlyCollection<CompanyRole> RolesForUser => _rolesForUser.AsReadOnly();
+    //private readonly List<CompanyRole> _companyRoles = [];
+    //public IReadOnlyCollection<CompanyRole> CompanyRoles => _companyRoles.AsReadOnly();
+
+    // ✅ Navigation: One Company has many Roles (One‑to‑Many)
+    private readonly List<Role> _roles = [];
+    public IReadOnlyCollection<Role> Roles => _roles.AsReadOnly();
+
+    private readonly List<User> _users = [];
+    public IReadOnlyCollection<User> Users => _users.AsReadOnly();
 
     private readonly List<Agent> _agents = [];
     public IReadOnlyCollection<Agent> Agents => _agents.AsReadOnly();
@@ -34,14 +41,16 @@ public class Company
         Url = url;
     }
 
-    public void AddCompanyRole(CompanyRole role)
+
+    // ✅ Business methods for managing Roles
+    public void AddRole(Role role)
     {
-        _rolesForUser.Add(role);
+        _roles.Add(role);
     }
 
-    public void RemoveCompanyRole(CompanyRole role)
+    public void RemoveRole(Role role)
     {
-        _rolesForUser.Remove(role);
+        _roles.Remove(role);
     }
 
     public void AddAgent(Agent agent)

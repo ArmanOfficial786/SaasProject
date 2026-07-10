@@ -14,6 +14,13 @@ public class HrmDbContext : IdentityDbContext<User, Role, Guid>, IDbContext
 
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // Suppress pending model changes warning during migrations
+        optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        base.OnConfiguring(optionsBuilder);
+    }
+
     #region User Management
     public new DbSet<User> Users => Set<User>();
     public new DbSet<Role> Roles => Set<Role>();

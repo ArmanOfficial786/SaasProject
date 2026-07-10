@@ -6,8 +6,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.ToTable("users");
         builder.HasKey(u => u.Id);
-        builder.Property(u => u.Id).HasColumnName("UserId");
-
         builder.Property(u => u.FirstName).HasMaxLength(30);
         builder.Property(u => u.MiddleName).HasMaxLength(30);
         builder.Property(u => u.LastName).HasMaxLength(30);
@@ -25,11 +23,14 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasIndex(u => new { u.CompanyId, u.NormalizedEmail }).IsUnique();
 
-        // Field-access collections (private backing lists)
-        builder.Navigation(u => u.UserRoles).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(u => u.UserStatuses).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(u => u.AgentUsers).UsePropertyAccessMode(PropertyAccessMode.Field);
-        builder.Navigation(u => u.UserModulePermissions).UsePropertyAccessMode(PropertyAccessMode.Field);
+        // Relationship to Company
+        builder.HasOne(u => u.Company)
+            .WithMany(c => c.Users)
+            .HasForeignKey(u => u.CompanyId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Note: Users are NOT seeded here via HasData — password hashing
+        // needs UserManager at runtime. See DbInitializer.SeedAsync().
+
     }
 }
-

@@ -1,7 +1,7 @@
 ﻿
 
 namespace UserManagement.Application.ViewModels;
-
+//Display full details of a single Role (including nested permissions)
 public class RoleViewModel
 {
     public Guid Id { get; init; }
@@ -16,12 +16,12 @@ public class Mapping : Profile
 {
     public Mapping()
     {
-        _ = CreateMap<Role, RoleViewModel>();
 
-        _ = CreateMap<CompanyRole, RoleViewModel>()
-            .ForMember(dest => dest.Name, options => options.MapFrom(src => src.Role!.Name!))
-            .ForMember(dest => dest.Desc, options => options.MapFrom(src => src.Role!.Desc!))
-            .ForMember(dest => dest.ModulePermissions, options => options.MapFrom(src => src.Role!.RoleModulePermissions));
+
+        _ = CreateMap<Role, RoleViewModel>()
+            .ForMember(dest => dest.Name, options => options.MapFrom(src => src.Name!))
+            .ForMember(dest => dest.Desc, options => options.MapFrom(src => src.Desc!))
+            .ForMember(dest => dest.ModulePermissions, options => options.MapFrom(src => src.RoleModulePermissions));
 
         _ = CreateMap<AgentRole, RoleViewModel>()
             .ForMember(dest => dest.Name, options => options.MapFrom(src => src.Role!.Name!))
@@ -30,7 +30,7 @@ public class Mapping : Profile
     }
 
 }
-
+//Display summary information for multiple Roles (e.g., in a dropdown, table, or list)
 public class RoleListViewModel
 {
     public Guid Id { get; set; }
@@ -44,10 +44,9 @@ public class RoleListViewModel
     {
         public Mapping()
         {
+            //both entity and Dtos same so map it directly
             _ = CreateMap<Role, RoleListViewModel>();
-            _ = CreateMap<CompanyRole, RoleListViewModel>()
-                .ForMember(dest => dest.Name, options => options.MapFrom(src => src.Role!.Name!))
-                .ForMember(dest => dest.Desc, options => options.MapFrom(src => src.Role!.Desc!));
+
             _ = CreateMap<AgentRole, RoleListViewModel>()
                 .ForMember(dest => dest.Name, options => options.MapFrom(src => src.Role!.Name!))
                 .ForMember(dest => dest.Desc, options => options.MapFrom(src => src.Role!.Desc!));
