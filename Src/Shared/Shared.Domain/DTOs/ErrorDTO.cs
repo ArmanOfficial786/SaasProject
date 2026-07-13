@@ -1,7 +1,6 @@
 ﻿
-namespace Shared.Domain.DTOs
+namespace Shared.Domain.DTOs;
+
+public record ErrorDTO(string Code, string? Message)
 {
-    public record ErrorDTO(string Code, string? Message)
-    {
-    }
 }

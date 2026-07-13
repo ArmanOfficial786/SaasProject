@@ -11,36 +11,36 @@ public class RoleModulePermissionConfiguration : IEntityTypeConfiguration<RoleMo
         builder.Property(rmp => rmp.ModulePermissionId).IsRequired();
 
         // Seed data - Assign module permissions to roles
-        var seedRoleModulePermissions = new List<RoleModulePermission>
-        {
-            // Admin role gets all permissions
-            SeedRoleModulePermission.AdminUserRead,
-            SeedRoleModulePermission.AdminUserWrite,
-            SeedRoleModulePermission.AdminUserUpdate,
-            SeedRoleModulePermission.AdminUserDelete,
-            SeedRoleModulePermission.AdminUserRoleRead,
-            SeedRoleModulePermission.AdminUserRoleWrite,
-            SeedRoleModulePermission.AdminUserRoleUpdate,
-            SeedRoleModulePermission.AdminUserRoleDelete,
-            SeedRoleModulePermission.AdminAgentRoleRead,
-            SeedRoleModulePermission.AdminAgentRoleWrite,
-            SeedRoleModulePermission.AdminAgentRoleUpdate,
-            SeedRoleModulePermission.AdminAgentRoleDelete,
+        //var seedRoleModulePermissions = new List<RoleModulePermission>
+        //{
+        //    // Admin role gets all permissions
+        //    SeedRoleModulePermission.AdminUserRead,
+        //    SeedRoleModulePermission.AdminUserWrite,
+        //    SeedRoleModulePermission.AdminUserUpdate,
+        //    SeedRoleModulePermission.AdminUserDelete,
+        //    SeedRoleModulePermission.AdminUserRoleRead,
+        //    SeedRoleModulePermission.AdminUserRoleWrite,
+        //    SeedRoleModulePermission.AdminUserRoleUpdate,
+        //    SeedRoleModulePermission.AdminUserRoleDelete,
+        //    SeedRoleModulePermission.AdminAgentRoleRead,
+        //    SeedRoleModulePermission.AdminAgentRoleWrite,
+        //    SeedRoleModulePermission.AdminAgentRoleUpdate,
+        //    SeedRoleModulePermission.AdminAgentRoleDelete,
 
-            // Manager role gets read/write permissions
-            SeedRoleModulePermission.ManagerUserRead,
-            SeedRoleModulePermission.ManagerUserWrite,
-            SeedRoleModulePermission.ManagerUserRoleRead,
-            SeedRoleModulePermission.ManagerUserRoleWrite,
-            SeedRoleModulePermission.ManagerAgentRoleRead,
-            SeedRoleModulePermission.ManagerAgentRoleWrite,
+        //    // Manager role gets read/write permissions
+        //    SeedRoleModulePermission.ManagerUserRead,
+        //    SeedRoleModulePermission.ManagerUserWrite,
+        //    SeedRoleModulePermission.ManagerUserRoleRead,
+        //    SeedRoleModulePermission.ManagerUserRoleWrite,
+        //    SeedRoleModulePermission.ManagerAgentRoleRead,
+        //    SeedRoleModulePermission.ManagerAgentRoleWrite,
 
-            // User role gets read-only permissions
-            SeedRoleModulePermission.UserUserRead,
-            SeedRoleModulePermission.UserUserRoleRead,
-            SeedRoleModulePermission.UserAgentRoleRead,
-        };
-        builder.HasData(seedRoleModulePermissions);
+        //    // User role gets read-only permissions
+        //    SeedRoleModulePermission.UserUserRead,
+        //    SeedRoleModulePermission.UserUserRoleRead,
+        //    SeedRoleModulePermission.UserAgentRoleRead,
+        //};
+        //builder.HasData(seedRoleModulePermissions);
 
         //relationships to role
         builder.HasOne(rmp => rmp.Role)

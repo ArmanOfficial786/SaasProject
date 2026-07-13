@@ -13,13 +13,13 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.Property(r => r.Desc).HasMaxLength(500);
 
         // Seed data
-        var seedRoles = new List<Role>
-        {
-            SeedRole.Admin,
-            SeedRole.Manager,
-            SeedRole.User,
-        };
-        builder.HasData(seedRoles);
+        //var seedRoles = new List<Role>
+        //{
+        //    SeedRole.Admin,
+        //    SeedRole.Manager,
+        //    SeedRole.User,
+        //};
+        //builder.HasData(seedRoles);
 
         // ✅ Relationship: Role → Company (Many‐to‐One)
         builder.HasOne(r => r.Company)

@@ -18,21 +18,21 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
         builder.HasIndex(c => c.Pan).IsUnique();
         builder.HasIndex(c => c.RegNo).IsUnique();
 
-        // Seed data - use anonymous type with Id property to set key
-        builder.HasData(
-            new
-            {
-                Id = 1,
-                Name = "Arman Software Solutions",
-                Email = "info@armansoftware.com",
-                Address = "Kathmandu, Nepal",
-                PhoneNo = "+977-1-4000000",
-                Pan = "600000000",
-                RegNo = "120000",
-                Url = "https://armansoftware.com",
-                ProductCode = (string?)null
-            }
-        );
+        //// Seed data - use anonymous type with Id property to set key
+        //builder.HasData(
+        //    new
+        //    {
+        //        Id = 1,
+        //        Name = "Arman Software Solutions",
+        //        Email = "info@armansoftware.com",
+        //        Address = "Kathmandu, Nepal",
+        //        PhoneNo = "+977-1-4000000",
+        //        Pan = "600000000",
+        //        RegNo = "120000",
+        //        Url = "https://armansoftware.com",
+        //        ProductCode = (string?)null
+        //    }
+        //);
 
         // ✅ Relationship: Company → Roles (One-to-Many)
         builder.HasMany(c => c.Roles)

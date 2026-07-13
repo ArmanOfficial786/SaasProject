@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Shared.Infrastructure.Data.Configurations.UserManagement;
+﻿namespace Shared.Infrastructure.Data.Configurations.UserManagement;
 
 public class MenuConfiguration : IEntityTypeConfiguration<Menu>
 {
@@ -10,16 +6,16 @@ public class MenuConfiguration : IEntityTypeConfiguration<Menu>
     {
         _ = builder.ToTable("menus", Schemas.UserManagement);
 
-        var seedMenu = new List<Menu>
-            {
-                SeedMenu.UserManagement,
-                SeedMenu.AgentRole,
-                SeedMenu.UserRole,
-                SeedMenu.User,
+        //var seedMenu = new List<Menu>
+        //    {
+        //        SeedMenu.UserManagement,
+        //        SeedMenu.AgentRole,
+        //        SeedMenu.UserRole,
+        //        SeedMenu.User,
 
-            };
+        //    };
 
-        _ = builder.HasData(seedMenu);
+        //_ = builder.HasData(seedMenu);
     }
 }
 

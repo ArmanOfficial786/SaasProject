@@ -3,12 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Shared.Infrastructure.Migrations.HrmMigration
 {
     /// <inheritdoc />
-    public partial class InitialCreateNew : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -549,119 +547,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         principalTable: "module_permissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                schema: "userManagement",
-                table: "applications",
-                columns: new[] { "Id", "Code", "Desc", "Name" },
-                values: new object[] { new Guid("89de1083-5d8b-401c-8914-7f6cc1363fdf"), 0, "Usermanagement", "Usermanagement" });
-
-            migrationBuilder.InsertData(
-                table: "companies",
-                columns: new[] { "Id", "Address", "Email", "Name", "Pan", "PhoneNo", "ProductCode", "RegNo", "Url" },
-                values: new object[] { 1, "Kathmandu, Nepal", "info@armansoftware.com", "Arman Software Solutions", "600000000", "+977-1-4000000", null, "120000", "https://armansoftware.com" });
-
-            migrationBuilder.InsertData(
-                schema: "userManagement",
-                table: "menus",
-                columns: new[] { "Id", "Active", "Color", "Icon", "MenuText", "OrderNo", "ParentId", "ToolTip", "Url" },
-                values: new object[] { new Guid("9a71e39c-1e80-423e-9d87-16586687575f"), true, "red", "FaShieldHalved", "UserManagement", 1, null, "UserManagement", null });
-
-            migrationBuilder.InsertData(
-                table: "permissions",
-                columns: new[] { "PermissionId", "Code", "CompanyId", "Description", "Module" },
-                values: new object[,]
-                {
-                    { new Guid("30000000-0000-0000-0000-000000000001"), "user.view", 1, "View users", "UserManagement" },
-                    { new Guid("30000000-0000-0000-0000-000000000002"), "user.create", 1, "Create new users", "UserManagement" },
-                    { new Guid("30000000-0000-0000-0000-000000000003"), "user.edit", 1, "Edit existing users", "UserManagement" },
-                    { new Guid("30000000-0000-0000-0000-000000000004"), "user.delete", 1, "Delete users", "UserManagement" },
-                    { new Guid("30000000-0000-0000-0000-000000000005"), "role.view", 1, "View roles", "UserManagement" },
-                    { new Guid("30000000-0000-0000-0000-000000000006"), "role.create", 1, "Create new roles", "UserManagement" },
-                    { new Guid("30000000-0000-0000-0000-000000000007"), "role.edit", 1, "Edit existing roles", "UserManagement" },
-                    { new Guid("30000000-0000-0000-0000-000000000008"), "role.delete", 1, "Delete roles", "UserManagement" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "CompanyId", "ConcurrencyStamp", "Desc", "EntryByUserId", "EntryDate", "FromDate", "Name", "NormalizedName", "ToDate" },
-                values: new object[,]
-                {
-                    { new Guid("10000000-0000-0000-0000-000000000001"), 1, "56784e48-be89-425f-b37c-8007dded6f64", "Administrator with full access", null, new DateTime(2026, 7, 10, 6, 15, 27, 577, DateTimeKind.Utc).AddTicks(3492), new DateTime(2026, 7, 10, 6, 15, 27, 577, DateTimeKind.Utc).AddTicks(3496), "Admin", "ADMIN", null },
-                    { new Guid("10000000-0000-0000-0000-000000000002"), 1, "92bdbfd5-3c37-4d70-9a80-6302838cb5ca", "Manager with operational access", null, new DateTime(2026, 7, 10, 6, 15, 27, 578, DateTimeKind.Utc).AddTicks(1719), new DateTime(2026, 7, 10, 6, 15, 27, 578, DateTimeKind.Utc).AddTicks(1721), "Manager", "MANAGER", null },
-                    { new Guid("10000000-0000-0000-0000-000000000003"), 1, "e835a216-6cfd-460a-b896-226a6044e67b", "Regular user with limited access", null, new DateTime(2026, 7, 10, 6, 15, 27, 578, DateTimeKind.Utc).AddTicks(1744), new DateTime(2026, 7, 10, 6, 15, 27, 578, DateTimeKind.Utc).AddTicks(1744), "User", "USER", null }
-                });
-
-            migrationBuilder.InsertData(
-                schema: "userManagement",
-                table: "menus",
-                columns: new[] { "Id", "Active", "Color", "Icon", "MenuText", "OrderNo", "ParentId", "ToolTip", "Url" },
-                values: new object[,]
-                {
-                    { new Guid("37878e39-c706-427e-bc86-0e7d13c76665"), true, "blue", "FaUserGear", "User Role", 2, new Guid("9a71e39c-1e80-423e-9d87-16586687575f"), "Role for User Management", "/UserManagement/user-role" },
-                    { new Guid("45bda341-5e70-495c-aecd-075efef1885b"), true, "blue", "FaUsersGear", "Collection Center Role", 1, new Guid("9a71e39c-1e80-423e-9d87-16586687575f"), "Role for Collection and Distribution Center Management", "/UserManagement/agent-role" },
-                    { new Guid("5f35399e-05b3-42f1-8548-ab31b8cb731c"), true, "blue", "FaUser", "User", 3, new Guid("9a71e39c-1e80-423e-9d87-16586687575f"), "User Management", "/UserManagement/user" }
-                });
-
-            migrationBuilder.InsertData(
-                schema: "userManagement",
-                table: "modules",
-                columns: new[] { "Id", "ApplicationId", "Code", "Description", "FromDate", "MenuId", "Name", "ToDate" },
-                values: new object[,]
-                {
-                    { new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"), new Guid("89de1083-5d8b-401c-8914-7f6cc1363fdf"), 2, "User", new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("5f35399e-05b3-42f1-8548-ab31b8cb731c"), "User", null },
-                    { new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"), new Guid("89de1083-5d8b-401c-8914-7f6cc1363fdf"), 1, "User Role", new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("37878e39-c706-427e-bc86-0e7d13c76665"), "UserRole", null },
-                    { new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"), new Guid("89de1083-5d8b-401c-8914-7f6cc1363fdf"), 0, "Collection Center Role", new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("45bda341-5e70-495c-aecd-075efef1885b"), "AgentRole", null }
-                });
-
-            migrationBuilder.InsertData(
-                schema: "userManagement",
-                table: "module_permissions",
-                columns: new[] { "Id", "ModuleId", "Permission" },
-                values: new object[,]
-                {
-                    { new Guid("50000000-0000-0000-0000-000000000001"), new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"), "Read" },
-                    { new Guid("50000000-0000-0000-0000-000000000002"), new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"), "Write" },
-                    { new Guid("50000000-0000-0000-0000-000000000003"), new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"), "Update" },
-                    { new Guid("50000000-0000-0000-0000-000000000004"), new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"), "Delete" },
-                    { new Guid("50000000-0000-0000-0000-000000000005"), new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"), "Read" },
-                    { new Guid("50000000-0000-0000-0000-000000000006"), new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"), "Write" },
-                    { new Guid("50000000-0000-0000-0000-000000000007"), new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"), "Update" },
-                    { new Guid("50000000-0000-0000-0000-000000000008"), new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"), "Delete" },
-                    { new Guid("50000000-0000-0000-0000-000000000009"), new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"), "Read" },
-                    { new Guid("50000000-0000-0000-0000-00000000000a"), new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"), "Write" },
-                    { new Guid("50000000-0000-0000-0000-00000000000b"), new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"), "Update" },
-                    { new Guid("50000000-0000-0000-0000-00000000000c"), new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"), "Delete" }
-                });
-
-            migrationBuilder.InsertData(
-                schema: "userManagement",
-                table: "role_module_permissions",
-                columns: new[] { "ModulePermissionId", "RoleId" },
-                values: new object[,]
-                {
-                    { new Guid("50000000-0000-0000-0000-000000000001"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000002"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000003"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000004"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000005"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000006"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000007"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000008"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000009"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-00000000000a"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-00000000000b"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-00000000000c"), new Guid("10000000-0000-0000-0000-000000000001") },
-                    { new Guid("50000000-0000-0000-0000-000000000001"), new Guid("10000000-0000-0000-0000-000000000002") },
-                    { new Guid("50000000-0000-0000-0000-000000000002"), new Guid("10000000-0000-0000-0000-000000000002") },
-                    { new Guid("50000000-0000-0000-0000-000000000005"), new Guid("10000000-0000-0000-0000-000000000002") },
-                    { new Guid("50000000-0000-0000-0000-000000000006"), new Guid("10000000-0000-0000-0000-000000000002") },
-                    { new Guid("50000000-0000-0000-0000-000000000009"), new Guid("10000000-0000-0000-0000-000000000002") },
-                    { new Guid("50000000-0000-0000-0000-00000000000a"), new Guid("10000000-0000-0000-0000-000000000002") },
-                    { new Guid("50000000-0000-0000-0000-000000000001"), new Guid("10000000-0000-0000-0000-000000000003") },
-                    { new Guid("50000000-0000-0000-0000-000000000005"), new Guid("10000000-0000-0000-0000-000000000003") },
-                    { new Guid("50000000-0000-0000-0000-000000000009"), new Guid("10000000-0000-0000-0000-000000000003") }
                 });
 
             migrationBuilder.CreateIndex(

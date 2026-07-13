@@ -30,8 +30,9 @@ public class Company
     private readonly List<Agent> _agents = [];
     public IReadOnlyCollection<Agent> Agents => _agents.AsReadOnly();
 
-    public Company(string name, string email, string address, string phoneNo, string pan, string regNo, string url)
+    public Company(string productCode, string name, string email, string address, string phoneNo, string pan, string regNo, string url)
     {
+        ProductCode = productCode;
         Name = name;
         Email = email;
         Address = address;

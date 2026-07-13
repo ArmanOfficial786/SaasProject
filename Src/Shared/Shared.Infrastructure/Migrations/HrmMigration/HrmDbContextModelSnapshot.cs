@@ -147,15 +147,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasKey("Id");
 
                     b.ToTable("applications", "userManagement");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("89de1083-5d8b-401c-8914-7f6cc1363fdf"),
-                            Code = 0,
-                            Desc = "Usermanagement",
-                            Name = "Usermanagement"
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.Agent", b =>
@@ -340,19 +331,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .IsUnique();
 
                     b.ToTable("companies", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Address = "Kathmandu, Nepal",
-                            Email = "info@armansoftware.com",
-                            Name = "Arman Software Solutions",
-                            Pan = "600000000",
-                            PhoneNo = "+977-1-4000000",
-                            RegNo = "120000",
-                            Url = "https://armansoftware.com"
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.LoginLog", b =>
@@ -436,54 +414,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasIndex("ParentId");
 
                     b.ToTable("menus", "userManagement");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("9a71e39c-1e80-423e-9d87-16586687575f"),
-                            Active = true,
-                            Color = "red",
-                            Icon = "FaShieldHalved",
-                            MenuText = "UserManagement",
-                            OrderNo = 1,
-                            ToolTip = "UserManagement"
-                        },
-                        new
-                        {
-                            Id = new Guid("45bda341-5e70-495c-aecd-075efef1885b"),
-                            Active = true,
-                            Color = "blue",
-                            Icon = "FaUsersGear",
-                            MenuText = "Collection Center Role",
-                            OrderNo = 1,
-                            ParentId = new Guid("9a71e39c-1e80-423e-9d87-16586687575f"),
-                            ToolTip = "Role for Collection and Distribution Center Management",
-                            Url = "/UserManagement/agent-role"
-                        },
-                        new
-                        {
-                            Id = new Guid("37878e39-c706-427e-bc86-0e7d13c76665"),
-                            Active = true,
-                            Color = "blue",
-                            Icon = "FaUserGear",
-                            MenuText = "User Role",
-                            OrderNo = 2,
-                            ParentId = new Guid("9a71e39c-1e80-423e-9d87-16586687575f"),
-                            ToolTip = "Role for User Management",
-                            Url = "/UserManagement/user-role"
-                        },
-                        new
-                        {
-                            Id = new Guid("5f35399e-05b3-42f1-8548-ab31b8cb731c"),
-                            Active = true,
-                            Color = "blue",
-                            Icon = "FaUser",
-                            MenuText = "User",
-                            OrderNo = 3,
-                            ParentId = new Guid("9a71e39c-1e80-423e-9d87-16586687575f"),
-                            ToolTip = "User Management",
-                            Url = "/UserManagement/user"
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.Module", b =>
@@ -522,38 +452,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasIndex("MenuId");
 
                     b.ToTable("modules", "userManagement");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"),
-                            ApplicationId = new Guid("89de1083-5d8b-401c-8914-7f6cc1363fdf"),
-                            Code = 0,
-                            Description = "Collection Center Role",
-                            FromDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            MenuId = new Guid("45bda341-5e70-495c-aecd-075efef1885b"),
-                            Name = "AgentRole"
-                        },
-                        new
-                        {
-                            Id = new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"),
-                            ApplicationId = new Guid("89de1083-5d8b-401c-8914-7f6cc1363fdf"),
-                            Code = 1,
-                            Description = "User Role",
-                            FromDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            MenuId = new Guid("37878e39-c706-427e-bc86-0e7d13c76665"),
-                            Name = "UserRole"
-                        },
-                        new
-                        {
-                            Id = new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"),
-                            ApplicationId = new Guid("89de1083-5d8b-401c-8914-7f6cc1363fdf"),
-                            Code = 2,
-                            Description = "User",
-                            FromDate = new DateTime(2024, 6, 6, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            MenuId = new Guid("5f35399e-05b3-42f1-8548-ab31b8cb731c"),
-                            Name = "User"
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.ModulePermission", b =>
@@ -576,80 +474,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .IsUnique();
 
                     b.ToTable("module_permissions", "userManagement");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000001"),
-                            ModuleId = new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"),
-                            Permission = "Read"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000002"),
-                            ModuleId = new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"),
-                            Permission = "Write"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000003"),
-                            ModuleId = new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"),
-                            Permission = "Update"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000004"),
-                            ModuleId = new Guid("65d5de5a-3b73-4e45-8775-1b3d6f144268"),
-                            Permission = "Delete"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000005"),
-                            ModuleId = new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"),
-                            Permission = "Read"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000006"),
-                            ModuleId = new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"),
-                            Permission = "Write"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000007"),
-                            ModuleId = new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"),
-                            Permission = "Update"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000008"),
-                            ModuleId = new Guid("ba51d83f-8c02-4fb5-922f-650b945b79b2"),
-                            Permission = "Delete"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-000000000009"),
-                            ModuleId = new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"),
-                            Permission = "Read"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-00000000000a"),
-                            ModuleId = new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"),
-                            Permission = "Write"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-00000000000b"),
-                            ModuleId = new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"),
-                            Permission = "Update"
-                        },
-                        new
-                        {
-                            Id = new Guid("50000000-0000-0000-0000-00000000000c"),
-                            ModuleId = new Guid("e3c916fb-608f-42b3-87db-1c46ae5b5148"),
-                            Permission = "Delete"
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.Permission", b =>
@@ -681,72 +505,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .IsUnique();
 
                     b.ToTable("permissions", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000001"),
-                            Code = "user.view",
-                            CompanyId = 1,
-                            Description = "View users",
-                            Module = "UserManagement"
-                        },
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000002"),
-                            Code = "user.create",
-                            CompanyId = 1,
-                            Description = "Create new users",
-                            Module = "UserManagement"
-                        },
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000003"),
-                            Code = "user.edit",
-                            CompanyId = 1,
-                            Description = "Edit existing users",
-                            Module = "UserManagement"
-                        },
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000004"),
-                            Code = "user.delete",
-                            CompanyId = 1,
-                            Description = "Delete users",
-                            Module = "UserManagement"
-                        },
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000005"),
-                            Code = "role.view",
-                            CompanyId = 1,
-                            Description = "View roles",
-                            Module = "UserManagement"
-                        },
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000006"),
-                            Code = "role.create",
-                            CompanyId = 1,
-                            Description = "Create new roles",
-                            Module = "UserManagement"
-                        },
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000007"),
-                            Code = "role.edit",
-                            CompanyId = 1,
-                            Description = "Edit existing roles",
-                            Module = "UserManagement"
-                        },
-                        new
-                        {
-                            Id = new Guid("30000000-0000-0000-0000-000000000008"),
-                            Code = "role.delete",
-                            CompanyId = 1,
-                            Description = "Delete roles",
-                            Module = "UserManagement"
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.Role", b =>
@@ -801,41 +559,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("10000000-0000-0000-0000-000000000001"),
-                            CompanyId = 1,
-                            ConcurrencyStamp = "56784e48-be89-425f-b37c-8007dded6f64",
-                            Desc = "Administrator with full access",
-                            EntryDate = new DateTime(2026, 7, 10, 6, 15, 27, 577, DateTimeKind.Utc).AddTicks(3492),
-                            FromDate = new DateTime(2026, 7, 10, 6, 15, 27, 577, DateTimeKind.Utc).AddTicks(3496),
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = new Guid("10000000-0000-0000-0000-000000000002"),
-                            CompanyId = 1,
-                            ConcurrencyStamp = "92bdbfd5-3c37-4d70-9a80-6302838cb5ca",
-                            Desc = "Manager with operational access",
-                            EntryDate = new DateTime(2026, 7, 10, 6, 15, 27, 578, DateTimeKind.Utc).AddTicks(1719),
-                            FromDate = new DateTime(2026, 7, 10, 6, 15, 27, 578, DateTimeKind.Utc).AddTicks(1721),
-                            Name = "Manager",
-                            NormalizedName = "MANAGER"
-                        },
-                        new
-                        {
-                            Id = new Guid("10000000-0000-0000-0000-000000000003"),
-                            CompanyId = 1,
-                            ConcurrencyStamp = "e835a216-6cfd-460a-b896-226a6044e67b",
-                            Desc = "Regular user with limited access",
-                            EntryDate = new DateTime(2026, 7, 10, 6, 15, 27, 578, DateTimeKind.Utc).AddTicks(1744),
-                            FromDate = new DateTime(2026, 7, 10, 6, 15, 27, 578, DateTimeKind.Utc).AddTicks(1744),
-                            Name = "User",
-                            NormalizedName = "USER"
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.RoleModulePermission", b =>
@@ -851,113 +574,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasIndex("ModulePermissionId");
 
                     b.ToTable("role_module_permissions", "userManagement");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000001")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000002")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000003")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000004")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000005")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000006")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000007")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000008")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000009")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-00000000000a")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-00000000000b")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-00000000000c")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000001")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000002")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000005")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000006")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000009")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-00000000000a")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000001")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000005")
-                        },
-                        new
-                        {
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
-                            ModulePermissionId = new Guid("50000000-0000-0000-0000-000000000009")
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.User", b =>

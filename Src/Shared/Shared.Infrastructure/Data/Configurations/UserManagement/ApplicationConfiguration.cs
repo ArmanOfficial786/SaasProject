@@ -8,13 +8,13 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<App>
     {
         _ = builder.ToTable("applications", Schemas.UserManagement);
 
-        var seedApplications = new List<App>
-        {
-            SeedApplication.UserManagement,
-            //add future application
-        };
+        //var seedApplications = new List<App>
+        //{
+        //    SeedApplication.UserManagement,
+        //    //add future application
+        //};
 
-        _ = builder.HasData(seedApplications);
+        //_ = builder.HasData(seedApplications);
     }
 }
 

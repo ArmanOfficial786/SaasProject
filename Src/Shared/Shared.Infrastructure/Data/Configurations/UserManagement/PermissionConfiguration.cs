@@ -18,19 +18,19 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         builder.Property(p => p.Module).HasMaxLength(100).IsRequired();
         builder.Property(p => p.Description).HasMaxLength(500);
 
-        // Seed data
-        var seedPermissions = new List<Permission>
-        {
-            SeedPermission.UserManagementView,
-            SeedPermission.UserManagementCreate,
-            SeedPermission.UserManagementEdit,
-            SeedPermission.UserManagementDelete,
-            SeedPermission.RoleManagementView,
-            SeedPermission.RoleManagementCreate,
-            SeedPermission.RoleManagementEdit,
-            SeedPermission.RoleManagementDelete,
-        };
-        builder.HasData(seedPermissions);
+        //// Seed data
+        //var seedPermissions = new List<Permission>
+        //{
+        //    SeedPermission.UserManagementView,
+        //    SeedPermission.UserManagementCreate,
+        //    SeedPermission.UserManagementEdit,
+        //    SeedPermission.UserManagementDelete,
+        //    SeedPermission.RoleManagementView,
+        //    SeedPermission.RoleManagementCreate,
+        //    SeedPermission.RoleManagementEdit,
+        //    SeedPermission.RoleManagementDelete,
+        //};
+        //builder.HasData(seedPermissions);
 
         // Unique constraint on (CompanyId, Code)
         builder.HasIndex(p => new { p.CompanyId, p.Code }).IsUnique();

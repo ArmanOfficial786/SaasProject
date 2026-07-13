@@ -10,16 +10,16 @@ public class ModuleConfiguration : IEntityTypeConfiguration<Module>
         _ = builder.ToTable("modules", Schemas.UserManagement);
         // Explicit key — don't rely purely on convention once there's any
         // chance of type ambiguity in this file
-        builder.HasKey(m => m.Id);
-        var seedModules = new List<Module>
-        {
-            SeedModule.AgentRole,
-            SeedModule.UserRole,
-            SeedModule.User,
+        //builder.HasKey(m => m.Id);
+        //var seedModules = new List<Module>
+        //{
+        //    SeedModule.AgentRole,
+        //    SeedModule.UserRole,
+        //    SeedModule.User,
 
-        };
+        //};
 
-        _ = builder.HasData(seedModules);
+        //_ = builder.HasData(seedModules);
     }
 }
 

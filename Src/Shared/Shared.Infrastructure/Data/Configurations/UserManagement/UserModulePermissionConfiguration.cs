@@ -12,8 +12,8 @@ public class UserModulePermissionConfiguration : IEntityTypeConfiguration<UserMo
         builder.Property(ump => ump.ModulePermissionId).IsRequired();
 
         // Seed data (empty - typically populated through application)
-        var seedUserModulePermissions = new List<UserModulePermission>();
-        builder.HasData(seedUserModulePermissions);
+        //var seedUserModulePermissions = new List<UserModulePermission>();
+        //builder.HasData(seedUserModulePermissions);
 
         // Relationship to User
         builder.HasOne(ump => ump.User)

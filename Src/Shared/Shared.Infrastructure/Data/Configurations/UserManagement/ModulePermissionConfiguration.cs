@@ -22,22 +22,22 @@ public class ModulePermissionConfiguration : IEntityTypeConfiguration<ModulePerm
             .OnDelete(DeleteBehavior.Cascade);
 
         // Seed data
-        var seedModulePermissions = new List<ModulePermission>
-        {
-            SeedModulePermission.UserModuleRead,
-            SeedModulePermission.UserModuleWrite,
-            SeedModulePermission.UserModuleUpdate,
-            SeedModulePermission.UserModuleDelete,
-            SeedModulePermission.UserRoleModuleRead,
-            SeedModulePermission.UserRoleModuleWrite,
-            SeedModulePermission.UserRoleModuleUpdate,
-            SeedModulePermission.UserRoleModuleDelete,
-            SeedModulePermission.AgentRoleModuleRead,
-            SeedModulePermission.AgentRoleModuleWrite,
-            SeedModulePermission.AgentRoleModuleUpdate,
-            SeedModulePermission.AgentRoleModuleDelete,
-        };
-        builder.HasData(seedModulePermissions);
+        //var seedModulePermissions = new List<ModulePermission>
+        //{
+        //    SeedModulePermission.UserModuleRead,
+        //    SeedModulePermission.UserModuleWrite,
+        //    SeedModulePermission.UserModuleUpdate,
+        //    SeedModulePermission.UserModuleDelete,
+        //    SeedModulePermission.UserRoleModuleRead,
+        //    SeedModulePermission.UserRoleModuleWrite,
+        //    SeedModulePermission.UserRoleModuleUpdate,
+        //    SeedModulePermission.UserRoleModuleDelete,
+        //    SeedModulePermission.AgentRoleModuleRead,
+        //    SeedModulePermission.AgentRoleModuleWrite,
+        //    SeedModulePermission.AgentRoleModuleUpdate,
+        //    SeedModulePermission.AgentRoleModuleDelete,
+        //};
+        //builder.HasData(seedModulePermissions);
 
         // Unique constraint on (ModuleId, Permission)
         builder.HasIndex(x => new { x.ModuleId, x.Permission }).IsUnique();
