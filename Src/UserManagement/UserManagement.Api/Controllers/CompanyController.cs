@@ -10,7 +10,7 @@ public class CompanyController : ControllerBase
         _sender = sender;
     }
     [HttpPost]
-    public async Task<ActionResult<Response<CompanyCreateViewModel>>> CreateCompany([FromBody] CreateCompanyCommand request)
+    public async Task<ActionResult<Response<string>>> CreateCompany([FromBody] CreateCompanyCommand request)
     {
         return await _sender.Send(request);
     }

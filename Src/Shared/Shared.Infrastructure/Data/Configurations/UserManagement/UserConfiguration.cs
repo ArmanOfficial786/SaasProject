@@ -4,7 +4,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable("users");
+        builder.ToTable("users", Schemas.UserManagement);
         builder.HasKey(u => u.Id);
         builder.Property(u => u.FirstName).HasMaxLength(30);
         builder.Property(u => u.MiddleName).HasMaxLength(30);
@@ -28,6 +28,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithMany(c => c.Users)
             .HasForeignKey(u => u.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
+
+
 
         // Note: Users are NOT seeded here via HasData — password hashing
         // needs UserManager at runtime. See DbInitializer.SeedAsync().

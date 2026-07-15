@@ -4,7 +4,7 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
 {
     public void Configure(EntityTypeBuilder<Company> builder)
     {
-        builder.ToTable("companies");
+        builder.ToTable("companies", Schemas.UserManagement);
 
         builder.HasKey(c => c.Id);
 

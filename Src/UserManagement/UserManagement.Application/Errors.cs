@@ -11,4 +11,13 @@ public static class Errors
     #region Company  Errorse
     public static ErrorDTO CompanyAlreadyExists => new("COMPANY_ALREADY_EXISTS", "A company with the same PAN, Registration Number, or Email already exists.");
     #endregion
+    #region Branch Errors
+    public static ErrorDTO BranchAlreadyExists => new("Branch_Already_Exists", "Branch already exists.");
+    #endregion
+    #region User Errors
+    public static ErrorDTO UserAlreadyExists => new("User_Already_Exists", "User already exists.");
+    #endregion
+    #region Role Errors
+    public static ErrorDTO RoleAlreadyExists => new("Role_Already_Exists", "Role already exists for this user.");
+    #endregion
 }

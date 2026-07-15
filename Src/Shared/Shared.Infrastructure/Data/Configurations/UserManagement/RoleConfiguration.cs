@@ -4,7 +4,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)
     {
-        builder.ToTable("roles");
+        builder.ToTable("roles", Schemas.UserManagement);
 
         builder.HasKey(r => r.Id);
 

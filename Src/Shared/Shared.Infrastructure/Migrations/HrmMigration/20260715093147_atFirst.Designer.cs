@@ -12,8 +12,8 @@ using Shared.Infrastructure.Data.HrmDbContext;
 namespace Shared.Infrastructure.Migrations.HrmMigration
 {
     [DbContext(typeof(HrmDbContext))]
-    [Migration("20260713104212_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260715093147_atFirst")]
+    partial class atFirst
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -333,7 +333,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasIndex("RegNo")
                         .IsUnique();
 
-                    b.ToTable("companies", (string)null);
+                    b.ToTable("companies", "userManagement");
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.LoginLog", b =>
@@ -507,7 +507,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasIndex("CompanyId", "Code")
                         .IsUnique();
 
-                    b.ToTable("permissions", (string)null);
+                    b.ToTable("permissions", "userManagement");
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.Role", b =>
@@ -561,7 +561,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .IsUnique()
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("roles", "userManagement");
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.RoleModulePermission", b =>
@@ -683,7 +683,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .IsUnique()
                         .HasFilter("[NormalizedEmail] IS NOT NULL");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("users", "userManagement");
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.UserModulePermission", b =>
@@ -747,7 +747,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserRoles", "userManagement");
+                    b.ToTable("user_roles", "userManagement");
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.UserStatus", b =>

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Shared.Infrastructure.Migrations.HrmMigration
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class atFirst : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,6 +31,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
 
             migrationBuilder.CreateTable(
                 name: "companies",
+                schema: "userManagement",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -77,6 +78,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
 
             migrationBuilder.CreateTable(
                 name: "permissions",
+                schema: "userManagement",
                 columns: table => new
                 {
                     PermissionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -116,13 +118,15 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     table.ForeignKey(
                         name: "FK_agents_companies_CompanyId",
                         column: x => x.CompanyId,
+                        principalSchema: "userManagement",
                         principalTable: "companies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
+                name: "users",
+                schema: "userManagement",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -153,17 +157,19 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.PrimaryKey("PK_users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_AspNetUsers_EntryByUserId",
-                        column: x => x.EntryByUserId,
-                        principalTable: "AspNetUsers",
+                        name: "FK_users_companies_CompanyId",
+                        column: x => x.CompanyId,
+                        principalSchema: "userManagement",
+                        principalTable: "companies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_companies_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "companies",
+                        name: "FK_users_users_EntryByUserId",
+                        column: x => x.EntryByUserId,
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -209,50 +215,19 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_agent_users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_agent_users_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_agent_users_agents_AgentId",
                         column: x => x.AgentId,
                         principalSchema: "userManagement",
                         principalTable: "agents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetRoles",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
-                    Desc = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    EntryByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetRoles_AspNetUsers_EntryByUserId",
-                        column: x => x.EntryByUserId,
-                        principalTable: "AspNetUsers",
+                        name: "FK_agent_users_users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_AspNetRoles_companies_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "companies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -269,9 +244,10 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        name: "FK_AspNetUserClaims_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -289,9 +265,10 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
                     table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        name: "FK_AspNetUserLogins_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -309,9 +286,10 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        name: "FK_AspNetUserTokens_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -334,9 +312,45 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_login_logs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_login_logs_AspNetUsers_UserId",
+                        name: "FK_login_logs_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalSchema: "userManagement",
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "roles",
+                schema: "userManagement",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    Desc = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    EntryByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ToDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_roles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_roles_companies_CompanyId",
+                        column: x => x.CompanyId,
+                        principalSchema: "userManagement",
+                        principalTable: "companies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_roles_users_EntryByUserId",
+                        column: x => x.EntryByUserId,
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -357,9 +371,10 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_user_statuses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_user_statuses_AspNetUsers_UserId",
+                        name: "FK_user_statuses_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id");
                 });
 
@@ -404,16 +419,17 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_agent_roles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_agent_roles_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_agent_roles_agents_AgentId",
                         column: x => x.AgentId,
                         principalSchema: "userManagement",
                         principalTable: "agents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_agent_roles_roles_RoleId",
+                        column: x => x.RoleId,
+                        principalSchema: "userManagement",
+                        principalTable: "roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -432,9 +448,10 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
+                        name: "FK_AspNetRoleClaims_roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
+                        principalSchema: "userManagement",
+                        principalTable: "roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -450,21 +467,23 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
+                        name: "FK_AspNetUserRoles_roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
+                        principalSchema: "userManagement",
+                        principalTable: "roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        name: "FK_AspNetUserRoles_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRoles",
+                name: "user_roles",
                 schema: "userManagement",
                 columns: table => new
                 {
@@ -481,17 +500,19 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserRoles", x => x.Id);
+                    table.PrimaryKey("PK_user_roles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserRoles_AspNetRoles_RoleId",
+                        name: "FK_user_roles_roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
+                        principalSchema: "userManagement",
+                        principalTable: "roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserRoles_AspNetUsers_UserId",
+                        name: "FK_user_roles_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -508,16 +529,17 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_role_module_permissions", x => new { x.RoleId, x.ModulePermissionId });
                     table.ForeignKey(
-                        name: "FK_role_module_permissions_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_role_module_permissions_module_permissions_ModulePermissionId",
                         column: x => x.ModulePermissionId,
                         principalSchema: "userManagement",
                         principalTable: "module_permissions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_role_module_permissions_roles_RoleId",
+                        column: x => x.RoleId,
+                        principalSchema: "userManagement",
+                        principalTable: "roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -535,16 +557,17 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 {
                     table.PrimaryKey("PK_user_module_permissions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_user_module_permissions_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_user_module_permissions_module_permissions_ModulePermissionId",
                         column: x => x.ModulePermissionId,
                         principalSchema: "userManagement",
                         principalTable: "module_permissions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_user_module_permissions_users_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "userManagement",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -593,25 +616,6 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoles_CompanyId_NormalizedName",
-                table: "AspNetRoles",
-                columns: new[] { "CompanyId", "NormalizedName" },
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoles_EntryByUserId",
-                table: "AspNetRoles",
-                column: "EntryByUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
-                table: "AspNetRoles",
-                column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
                 table: "AspNetUserClaims",
                 column: "UserId");
@@ -627,37 +631,15 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "EmailIndex",
-                table: "AspNetUsers",
-                column: "NormalizedEmail");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_CompanyId_NormalizedEmail",
-                table: "AspNetUsers",
-                columns: new[] { "CompanyId", "NormalizedEmail" },
-                unique: true,
-                filter: "[NormalizedEmail] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_EntryByUserId",
-                table: "AspNetUsers",
-                column: "EntryByUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "UserNameIndex",
-                table: "AspNetUsers",
-                column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_companies_Pan",
+                schema: "userManagement",
                 table: "companies",
                 column: "Pan",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_companies_RegNo",
+                schema: "userManagement",
                 table: "companies",
                 column: "RegNo",
                 unique: true);
@@ -689,6 +671,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
 
             migrationBuilder.CreateIndex(
                 name: "IX_permissions_CompanyId_Code",
+                schema: "userManagement",
                 table: "permissions",
                 columns: new[] { "CompanyId", "Code" },
                 unique: true);
@@ -698,6 +681,28 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 schema: "userManagement",
                 table: "role_module_permissions",
                 column: "ModulePermissionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_roles_CompanyId_NormalizedName",
+                schema: "userManagement",
+                table: "roles",
+                columns: new[] { "CompanyId", "NormalizedName" },
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_roles_EntryByUserId",
+                schema: "userManagement",
+                table: "roles",
+                column: "EntryByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "RoleNameIndex",
+                schema: "userManagement",
+                table: "roles",
+                column: "NormalizedName",
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_user_module_permissions_ModulePermissionId",
@@ -713,22 +718,50 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_user_roles_RoleId",
+                schema: "userManagement",
+                table: "user_roles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_roles_UserId",
+                schema: "userManagement",
+                table: "user_roles",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_user_statuses_UserId",
                 schema: "userManagement",
                 table: "user_statuses",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_RoleId",
+                name: "EmailIndex",
                 schema: "userManagement",
-                table: "UserRoles",
-                column: "RoleId");
+                table: "users",
+                column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRoles_UserId",
+                name: "IX_users_CompanyId_NormalizedEmail",
                 schema: "userManagement",
-                table: "UserRoles",
-                column: "UserId");
+                table: "users",
+                columns: new[] { "CompanyId", "NormalizedEmail" },
+                unique: true,
+                filter: "[NormalizedEmail] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_users_EntryByUserId",
+                schema: "userManagement",
+                table: "users",
+                column: "EntryByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "UserNameIndex",
+                schema: "userManagement",
+                table: "users",
+                column: "NormalizedUserName",
+                unique: true,
+                filter: "[NormalizedUserName] IS NOT NULL");
         }
 
         /// <inheritdoc />
@@ -766,7 +799,8 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 schema: "userManagement");
 
             migrationBuilder.DropTable(
-                name: "permissions");
+                name: "permissions",
+                schema: "userManagement");
 
             migrationBuilder.DropTable(
                 name: "role_module_permissions",
@@ -777,11 +811,11 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 schema: "userManagement");
 
             migrationBuilder.DropTable(
-                name: "user_statuses",
+                name: "user_roles",
                 schema: "userManagement");
 
             migrationBuilder.DropTable(
-                name: "UserRoles",
+                name: "user_statuses",
                 schema: "userManagement");
 
             migrationBuilder.DropTable(
@@ -793,21 +827,24 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 schema: "userManagement");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "roles",
+                schema: "userManagement");
 
             migrationBuilder.DropTable(
                 name: "modules",
                 schema: "userManagement");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "users",
+                schema: "userManagement");
 
             migrationBuilder.DropTable(
                 name: "menus",
                 schema: "userManagement");
 
             migrationBuilder.DropTable(
-                name: "companies");
+                name: "companies",
+                schema: "userManagement");
         }
     }
 }

@@ -24,7 +24,9 @@ public class HrmDbContext : IdentityDbContext<User, Role, Guid>, IDbContext
     #region User Management
     public new DbSet<User> Users => Set<User>();
     public new DbSet<Role> Roles => Set<Role>();
+    public new DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<Company> Companies => Set<Company>();
+    public DbSet<Agent> Agents => Set<Agent>();
     public DbSet<Security.Domain.Entities.Application> Applications => Set<Security.Domain.Entities.Application>();
     public DbSet<ModulePermission> ModulePermissions => Set<ModulePermission>();
     public DbSet<UserManagement.Domain.Entities.Module> Modules => Set<UserManagement.Domain.Entities.Module>();
@@ -38,11 +40,24 @@ public class HrmDbContext : IdentityDbContext<User, Role, Guid>, IDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // 1) Let Identity build its default model FIRST
+        base.OnModelCreating(modelBuilder);
+
+        // 2) Map all Identity framework tables to custom table names in userManagement schema
+        modelBuilder.Entity<User>().ToTable("users", Schemas.UserManagement);
+        modelBuilder.Entity<Role>().ToTable("roles", Schemas.UserManagement);
+        modelBuilder.Entity<UserRole>().ToTable("user_roles", Schemas.UserManagement);
+
+        // 3) Map other Identity tables that might be created by default
+        //leave it with their origial names, as we are not using them in our project
+        //modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("user_claims", Schemas.UserManagement);
+        //modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("user_logins", Schemas.UserManagement);
+        //modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("user_tokens", Schemas.UserManagement);
+        //modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("role_claims", Schemas.UserManagement);
+
         // Domain events — transient, never persisted
         modelBuilder.Ignore<BaseEvent>();
-
-        // Reflection metadata accidentally reachable from an entity graph —
-        // never intended to be persisted; see comment below re: root cause
+        // Reflection metadata accidentally reachable from an entity graph
         modelBuilder.Ignore<System.Reflection.CustomAttributeData>();
         modelBuilder.Ignore<System.Reflection.MemberInfo>();
         modelBuilder.Ignore<System.Reflection.Module>();
@@ -50,10 +65,6 @@ public class HrmDbContext : IdentityDbContext<User, Role, Guid>, IDbContext
 
         // Picks up all IEntityTypeConfiguration<T> classes in this assembly
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(HrmDbContext).Assembly);
-        base.OnModelCreating(modelBuilder);
-
-
-
     }
 
     // ── IDbContext ────────────────────────────────────────────────────────────────────────────────────────────

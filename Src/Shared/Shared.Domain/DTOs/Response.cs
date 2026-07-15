@@ -35,4 +35,16 @@ public class Response<T> where T : class
             Errors = errors.ToList()
         };
     }
+
+    // New overload — same as above but also sets Message, needed by
+    // GlobalExceptionHandler to carry a summary string alongside per-field errors.
+    public static Response<T> FailureResponse(string msg, params ErrorDTO[] errors)
+    {
+        return new()
+        {
+            Success = false,
+            Message = msg,
+            Errors = errors.ToList()
+        };
+    }
 }

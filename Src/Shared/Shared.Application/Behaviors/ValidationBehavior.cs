@@ -3,7 +3,7 @@ using FluentValidation;
 using MediatR;
 
 namespace Shared.Application.Behaviors;
-
+//It's a MediatR pipeline behavior — it runs before every command/query handler, for every request type, automatically. Its only job is: stop bad input before it reaches business logic.
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {

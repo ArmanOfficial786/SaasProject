@@ -4,7 +4,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
 {
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
-        builder.ToTable("permissions");
+        builder.ToTable("permissions", Schemas.UserManagement);
 
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id)

@@ -10,10 +10,13 @@ public record CreateCompanyCommand
     string Pan,
     string RegNo,
     string Url,
+    //branch details
+    string BranchName,
+    string BranchAddress,
     string MainUsername,
     string MainUserFirstName,
     string MainUserLastName,
     string MainUserEmail,
     string MainUserContactNo
-    ) : IRequest<Response<CompanyCreateViewModel>>;
+    ) : IRequest<Response<string>>;
 

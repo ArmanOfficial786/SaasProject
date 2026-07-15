@@ -89,6 +89,13 @@ public class CompanyCreateViewModel
     public string? Pan { get; set; }
     public string? RegNo { get; set; }
     public string? Url { get; set; }
+    public string? BranchName { get; set; }
+    public string? BranchAddress { get; set; }
+    public string? MainUsername { get; set; }
+    public string? MainUserFirstName { get; set; }
+    public string? MainUserLastName { get; set; }
+    public string? MainUserEmail { get; set; }
+    public string? MainUserContactNo { get; set; }
 
     public class Mapping : Profile
     {
@@ -96,6 +103,8 @@ public class CompanyCreateViewModel
         {
             // Use constructor to create Company with provided values
             CreateMap<CompanyCreateViewModel, Company>();
+            // Map Company back to CompanyCreateViewModel for response
+            CreateMap<Company, CompanyCreateViewModel>();
 
         }
     }

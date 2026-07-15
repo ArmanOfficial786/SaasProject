@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Application.SeedData;
+using Shared.Infrastructure.GlobalException;
 using Shared.Infrastructure.Service;
 using Shared.Infrastructure.Services;
 
@@ -27,6 +28,10 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
         services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
+
+        // Global exception handling — registered directly, no separate extension method.
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
 
         //to do : add email service
         //services.AddTransient<IEmailService, EmailService>();
@@ -62,11 +67,19 @@ public static class DependencyInjection
     {
         services.AddIdentity<User, Role>(options =>
         {
+            // Password settings
             options.Password.RequireDigit = false;
             options.Password.RequiredLength = 6;
             options.Password.RequireNonAlphanumeric = false;
             options.Password.RequireUppercase = false;
             options.Password.RequireLowercase = false;
+
+            // User settings
+            options.User.RequireUniqueEmail = true;
+            // Lockout settings
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
         })
         .AddEntityFrameworkStores<TContext>()
         .AddDefaultTokenProviders();

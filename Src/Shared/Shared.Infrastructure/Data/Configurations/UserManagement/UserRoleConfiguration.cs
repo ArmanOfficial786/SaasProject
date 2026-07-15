@@ -4,7 +4,7 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 {
     public void Configure(EntityTypeBuilder<UserRole> builder)
     {
-        builder.ToTable("UserRoles", Schemas.UserManagement);
+        builder.ToTable("user_roles", Schemas.UserManagement);
         builder.HasKey(ur => ur.Id);
 
         builder.Property(ur => ur.UserId).IsRequired();
