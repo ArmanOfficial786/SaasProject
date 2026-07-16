@@ -12,8 +12,8 @@ using Shared.Infrastructure.Data.HrmDbContext;
 namespace Shared.Infrastructure.Migrations.HrmMigration
 {
     [DbContext(typeof(HrmDbContext))]
-    [Migration("20260715093147_atFirst")]
-    partial class atFirst
+    [Migration("20260716062229_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -992,8 +992,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasOne("UserManagement.Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("UserManagement.Domain.Entities.User", null)
                         .WithMany("UserRoles")

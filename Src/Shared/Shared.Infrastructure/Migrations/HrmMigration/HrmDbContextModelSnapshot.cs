@@ -989,8 +989,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasOne("UserManagement.Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("UserManagement.Domain.Entities.User", null)
                         .WithMany("UserRoles")

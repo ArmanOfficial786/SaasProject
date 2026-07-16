@@ -1,7 +1,6 @@
 ﻿
 
 
-
 namespace UserManagement.Domain.Entities;
 
 public class Role : IdentityRole<Guid>
@@ -17,7 +16,12 @@ public class Role : IdentityRole<Guid>
 
     // ✅ Navigation back to the Company
     public Company? Company { get; private set; }
-    public ICollection<UserRole> UserRoles { get; private set; } = [];
+
+    // FIX: Make UserRoles private to break circular reference
+    // User -> UserRoles -> UserRole -> Role -> UserRoles (causes StackOverflow)
+    // Navigate from User.UserRoles instead
+    private readonly List<UserRole> _userRoles = [];
+    public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
 
     private readonly List<RoleModulePermission> _roleModulePermissions = [];
     public IReadOnlyCollection<RoleModulePermission> RoleModulePermissions =>

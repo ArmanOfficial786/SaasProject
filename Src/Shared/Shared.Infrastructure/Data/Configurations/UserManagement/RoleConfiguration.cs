@@ -9,6 +9,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.HasKey(r => r.Id);
 
         // Explicit CompanyId property for tenant isolation
+
         builder.Property(r => r.CompanyId).IsRequired();
         builder.Property(r => r.Desc).HasMaxLength(500);
 

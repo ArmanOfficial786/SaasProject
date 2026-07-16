@@ -14,25 +14,17 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.CompanyId).IsRequired();
 
         // FIX #2: Map EntryByUserId scalar to FK column, no navigation
-        builder.Property(u => u.EntryByUserId).HasColumnName("EntryByUserId");
+
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(u => u.EntryByUserId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Property(u => u.EntryByUserId).HasColumnName("EntryByUserId");
+
         builder.HasIndex(u => new { u.CompanyId, u.NormalizedEmail }).IsUnique();
 
-        // Relationship to Company
-        builder.HasOne(u => u.Company)
-            .WithMany(c => c.Users)
-            .HasForeignKey(u => u.CompanyId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-
-
-        // Note: Users are NOT seeded here via HasData — password hashing
-        // needs UserManager at runtime. See DbInitializer.SeedAsync().
 
     }
 }
