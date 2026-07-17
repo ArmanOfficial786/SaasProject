@@ -12,8 +12,8 @@ using Shared.Infrastructure.Data.HrmDbContext;
 namespace Shared.Infrastructure.Migrations.HrmMigration
 {
     [DbContext(typeof(HrmDbContext))]
-    [Migration("20260716062229_Initial")]
-    partial class Initial
+    [Migration("20260717112454_RemaneRoleType")]
+    partial class RemaneRoleType
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -220,7 +220,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.Property<Guid?>("AgentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("EntryByUserId")
@@ -516,12 +516,13 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("concurrency_stamp");
 
                     b.Property<string>("Desc")
                         .IsRequired()
@@ -555,11 +556,11 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasIndex("NormalizedName")
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasFilter("[CompanyId] IS NULL");
 
                     b.HasIndex("CompanyId", "NormalizedName")
                         .IsUnique()
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasFilter("[CompanyId] IS NOT NULL");
 
                     b.ToTable("roles", "userManagement");
                 });
@@ -588,7 +589,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -607,8 +608,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .HasColumnType("bit");
 
                     b.Property<Guid?>("EntryByUserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("EntryByUserId");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
@@ -681,7 +681,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
 
                     b.HasIndex("CompanyId", "NormalizedEmail")
                         .IsUnique()
-                        .HasFilter("[NormalizedEmail] IS NOT NULL");
+                        .HasFilter("[CompanyId] IS NOT NULL AND [NormalizedEmail] IS NOT NULL");
 
                     b.ToTable("users", "userManagement");
                 });
@@ -714,7 +714,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<Guid?>("EntryByUserId")
@@ -724,6 +724,9 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RoleId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ToDate")
@@ -745,7 +748,15 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("RoleId1");
+
+                    b.HasIndex("UserId", "CompanyId");
+
+                    b.HasIndex("UserId", "RoleId");
+
+                    b.HasIndex("UserId", "RoleId", "CompanyId")
+                        .IsUnique()
+                        .HasFilter("[CompanyId] IS NOT NULL");
 
                     b.ToTable("user_roles", "userManagement");
                 });
@@ -920,8 +931,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasOne("UserManagement.Domain.Entities.Company", "Company")
                         .WithMany("Roles")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("UserManagement.Domain.Entities.User", "EntryBy")
                         .WithMany()
@@ -957,8 +967,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.HasOne("UserManagement.Domain.Entities.Company", "Company")
                         .WithMany("Users")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("UserManagement.Domain.Entities.User", null)
                         .WithMany()
@@ -990,9 +999,14 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
             modelBuilder.Entity("UserManagement.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("UserManagement.Domain.Entities.Role", "Role")
-                        .WithMany("UserRoles")
+                        .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("UserManagement.Domain.Entities.Role", null)
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId1");
 
                     b.HasOne("UserManagement.Domain.Entities.User", null)
                         .WithMany("UserRoles")

@@ -230,14 +230,14 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, Respo
             // untracked/unfamiliar Company instance as a new entity to
             // INSERT during SaveChanges, colliding with the identity column.
             var user = new User(
-                companyId,
                 request.UserName,
                 request.FirstName,
                 request.MiddleName,
                 request.LastName,
                 request.Email,
                 request.Contact,
-                entryByUserId: callerUserId);
+                callerUserId,
+                companyId);
 
             user.AddToAgent(agent);
 

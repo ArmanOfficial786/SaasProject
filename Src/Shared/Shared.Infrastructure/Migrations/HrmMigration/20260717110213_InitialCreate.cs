@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Shared.Infrastructure.Migrations.HrmMigration
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -130,7 +130,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: true),
                     FirstName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     MiddleName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
@@ -326,15 +326,17 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
                     Desc = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     EntryByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     FromDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ToDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CompanyId = table.Column<int>(type: "int", nullable: true),
+                    IsSystemRole = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsSuperAdmin = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    concurrency_stamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -407,7 +409,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AgentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    CompanyId = table.Column<int>(type: "int", nullable: true),
                     EntryByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -490,7 +492,8 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
+                    RoleId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CompanyId = table.Column<int>(type: "int", nullable: true),
                     EntryByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     EntryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -508,6 +511,19 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                         principalTable: "roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_user_roles_roles_RoleId1",
+                        column: x => x.RoleId1,
+                        principalSchema: "userManagement",
+                        principalTable: "roles",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_user_roles_users_EntryByUserId",
+                        column: x => x.EntryByUserId,
+                        principalSchema: "userManagement",
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_user_roles_users_UserId",
                         column: x => x.UserId,
@@ -688,7 +704,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 table: "roles",
                 columns: new[] { "CompanyId", "NormalizedName" },
                 unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                filter: "[CompanyId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_roles_EntryByUserId",
@@ -702,7 +718,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 table: "roles",
                 column: "NormalizedName",
                 unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                filter: "[CompanyId] IS NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_user_module_permissions_ModulePermissionId",
@@ -718,16 +734,42 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_user_roles_EntryByUserId",
+                schema: "userManagement",
+                table: "user_roles",
+                column: "EntryByUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_user_roles_RoleId",
                 schema: "userManagement",
                 table: "user_roles",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_user_roles_UserId",
+                name: "IX_user_roles_RoleId1",
                 schema: "userManagement",
                 table: "user_roles",
-                column: "UserId");
+                column: "RoleId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_roles_UserId_RoleId_CompanyId",
+                schema: "userManagement",
+                table: "user_roles",
+                columns: new[] { "UserId", "RoleId", "CompanyId" },
+                unique: true,
+                filter: "[CompanyId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRole_SuperAdmin",
+                schema: "userManagement",
+                table: "user_roles",
+                columns: new[] { "UserId", "RoleId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRole_UserId_CompanyId",
+                schema: "userManagement",
+                table: "user_roles",
+                columns: new[] { "UserId", "CompanyId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_user_statuses_UserId",
@@ -747,7 +789,7 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                 table: "users",
                 columns: new[] { "CompanyId", "NormalizedEmail" },
                 unique: true,
-                filter: "[NormalizedEmail] IS NOT NULL");
+                filter: "[CompanyId] IS NOT NULL AND [NormalizedEmail] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_users_EntryByUserId",

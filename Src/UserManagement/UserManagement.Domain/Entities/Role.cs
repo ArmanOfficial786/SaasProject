@@ -5,8 +5,7 @@ namespace UserManagement.Domain.Entities;
 
 public class Role : IdentityRole<Guid>
 {
-    //name id provided by IdentityRole<Guid>
-    public int CompanyId { get; private set; }
+
     [MaxLength(500)]
     public string Desc { get; private set; }
     public User? EntryBy { get; private set; }
@@ -17,9 +16,13 @@ public class Role : IdentityRole<Guid>
     // ✅ Navigation back to the Company
     public Company? Company { get; private set; }
 
-    // FIX: Make UserRoles private to break circular reference
-    // User -> UserRoles -> UserRole -> Role -> UserRoles (causes StackOverflow)
-    // Navigate from User.UserRoles instead
+    // ✅ CompanyId is NULL for global roles
+    public int? CompanyId { get; private set; }
+
+    public bool IsGlobalRole => CompanyId is null;
+    public bool IsCompanyRole => CompanyId is not null;
+
+
     private readonly List<UserRole> _userRoles = [];
     public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
 
@@ -27,11 +30,14 @@ public class Role : IdentityRole<Guid>
     public IReadOnlyCollection<RoleModulePermission> RoleModulePermissions =>
         _roleModulePermissions.AsReadOnly();
 
-    public Role(int companyId, string name, string desc)
+    public Role(string name, string desc, int? companyId = null)
     {
-        CompanyId = companyId;
         Name = name; // ✅ Name is inherited IdentityRole.Name
         Desc = desc;
+        CompanyId = companyId;//null for global roles, otherwise set to the specific company ID
+        ConcurrencyStamp = Guid.NewGuid().ToString();
+
+
     }
     public void Terminate()
     {
@@ -53,6 +59,13 @@ public class Role : IdentityRole<Guid>
     {
         Name = name;
         Desc = desc;
+        NormalizedName = name.ToUpperInvariant();
+        // ✅ Update concurrency stamp on update
+        ConcurrencyStamp = Guid.NewGuid().ToString();
     }
+
+
+
+
 
 }

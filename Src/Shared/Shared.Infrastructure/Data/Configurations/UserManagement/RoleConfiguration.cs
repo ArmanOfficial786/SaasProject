@@ -10,8 +10,14 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         // Explicit CompanyId property for tenant isolation
 
-        builder.Property(r => r.CompanyId).IsRequired();
+        builder.Property(r => r.CompanyId).IsRequired(false);
         builder.Property(r => r.Desc).HasMaxLength(500);
+
+        builder.Property(r => r.ConcurrencyStamp)
+              .HasColumnName("concurrency_stamp")
+              .IsConcurrencyToken(); // ✅ Important for concurrency handling
+        builder.Property(r => r.CompanyId).IsRequired(false);
+
 
         // Seed data
         //var seedRoles = new List<Role>
@@ -26,7 +32,8 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.HasOne(r => r.Company)
                .WithMany(c => c.Roles)
                .HasForeignKey(r => r.CompanyId)
-               .OnDelete(DeleteBehavior.Restrict);
+               .OnDelete(DeleteBehavior.Restrict)
+               .IsRequired(false);
 
         builder.HasOne(r => r.EntryBy)
             .WithMany()
@@ -34,10 +41,22 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Unique constraint per tenant
-        builder.HasIndex(r => new { r.CompanyId, r.NormalizedName }).IsUnique();
+        // Company-scoped roles: unique name per company (CompanyId NOT NULL).
+        builder.HasIndex(r => new { r.CompanyId, r.NormalizedName })
+               .IsUnique()
+               .HasFilter("[CompanyId] IS NOT NULL");
+
+
+        // Global/super-admin roles: unique name across the null-company set
+        // (e.g. only one "SuperAdmin" role total).
+        builder.HasIndex(r => r.NormalizedName)
+               .IsUnique()
+               .HasFilter("[CompanyId] IS NULL");
+
+
 
         builder.Navigation(r => r.RoleModulePermissions).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(r => r.UserRoles).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
 

@@ -1,8 +1,12 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Shared.Application.Behaviors;
 using Shared.Application.Configuration;
+using Shared.Application.Identity;
 using Shared.Application.SeedData;
+using UserManagement.Domain.Entities;
 
 namespace Shared.Application;
 
@@ -51,6 +55,10 @@ public static class DependencyInjection
         // Program.cs silently wins — meaning the narrower scan (this assembly only)
         // could shadow the broader one and quietly drop every module's mapping profiles.
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+
+        // Replace the default IRoleValidator<Role> with our custom CompanyScopedRoleValidator
+        services.RemoveAll<IRoleValidator<Role>>();
+        services.AddScoped<IRoleValidator<Role>, CompanyScopedRoleValidator>();
 
         return services;
     }

@@ -10,12 +10,12 @@ public class UserRole : AuditableEntity
 
     private UserRole() { }
 
-    public UserRole(Guid userId, Role role)
+    public UserRole(Guid userId, Role role, int? companyId = null)
     {
         UserId = userId;
         RoleId = role.Id;
         Role = role;
-        // FIX #4: junction entity sets its own audit on creation
+        CompanyId = companyId ?? role.CompanyId;
         SetEntry(userId);
     }
 

@@ -110,6 +110,7 @@
 
 
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace UserManagement.Application.Commands.CompanyCommands.CreateCompany;
@@ -195,9 +196,9 @@ public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand,
             // 3. Default roles
             Role ownerRole = new
                 (
-                company.Id,
-                "Owner",
-                "Default owner role with full permissions"
+                name: "Owner",
+                desc: "Default owner role with full permissions",
+                companyId: company.Id
                 );
             var ownerRoleResult = await _roleManager.CreateAsync(ownerRole);
             if (!ownerRoleResult.Succeeded)
@@ -227,13 +228,22 @@ public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand,
                 await _unitOfWork.RollbackAsync(cancellationToken);
                 return Response<string>.FailureResponse(Errors.UserAlreadyExists);
             }
+            // 5. Assign Owner role in userRole table
+            user.AddRole(ownerRole);
 
-            var roleAssignResult = await _userManager.AddToRoleAsync(user, "Owner");
-            if (!roleAssignResult.Succeeded)
+            // 6. ✅ Auto-approve the role assignment (since it's the owner)
+            var userRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == ownerRole.Id);
+            if (userRole is null)
             {
                 await _unitOfWork.RollbackAsync(cancellationToken);
-                return Response<string>.FailureResponse(Errors.RoleAlreadyExists);
+                return Response<string>.FailureResponse(Errors.Exception(
+                    new InvalidOperationException("Owner UserRole was not created.")));
             }
+            _unitOfWork.Repository<UserRole>().Insert(userRole);
+
+            userRole.Approve();
+            userRole.SetUpdate(user.Id);
+
 
             // 5. Grant Owner role every ModulePermission for this company's ProductCode.
             //    UNVERIFIED: adjust predicate field name once ModulePermission.cs is confirmed.
@@ -287,6 +297,20 @@ public class CreateCompanyCommandHandler : IRequestHandler<CreateCompanyCommand,
 
             return Response<string>.SuccessResponse(
                 $"{company.Name} created successfully");
+        }
+        catch (DbUpdateConcurrencyException cex)
+        {
+            var conflicts = cex.Entries
+        .Select(e => new { Type = e.Entity?.GetType().Name ?? "unknown", e.State })
+        .ToList();
+
+            await _unitOfWork.RollbackAsync(cancellationToken);
+
+            _logger.LogError(cex,
+                "Concurrency conflict while creating company for {@Request}. Conflicting entries: {@Conflicts}",
+                request, conflicts);
+
+            return Response<string>.FailureResponse(Errors.Exception(cex));
         }
         catch (Exception ex)
         {

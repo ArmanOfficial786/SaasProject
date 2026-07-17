@@ -1,0 +1,12 @@
+﻿
+[
+  {
+    "id": "30000000-0000-0000-0000-000000000001",
+    "name": "Head Office",
+    "address": "Kathmandu, Nepal",
+    "pan": "999999999",
+    "regNoSuffix": "-HO",
+    "isParent": true,
+    "companyRegNo": "SYSTEM-DEFAULT"
+  }
+]

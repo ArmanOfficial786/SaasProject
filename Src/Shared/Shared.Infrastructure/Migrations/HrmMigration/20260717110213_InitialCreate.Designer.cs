@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Shared.Infrastructure.Data.HrmDbContext;
 
@@ -11,9 +12,11 @@ using Shared.Infrastructure.Data.HrmDbContext;
 namespace Shared.Infrastructure.Migrations.HrmMigration
 {
     [DbContext(typeof(HrmDbContext))]
-    partial class HrmDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260717110213_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -535,6 +538,16 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
                     b.Property<DateTime>("FromDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsSuperAdmin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsSystemRole")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Name")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -743,13 +756,17 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EntryByUserId");
+
                     b.HasIndex("RoleId");
 
                     b.HasIndex("RoleId1");
 
-                    b.HasIndex("UserId", "CompanyId");
+                    b.HasIndex("UserId", "CompanyId")
+                        .HasDatabaseName("IX_UserRole_UserId_CompanyId");
 
-                    b.HasIndex("UserId", "RoleId");
+                    b.HasIndex("UserId", "RoleId")
+                        .HasDatabaseName("IX_UserRole_SuperAdmin");
 
                     b.HasIndex("UserId", "RoleId", "CompanyId")
                         .IsUnique()
@@ -995,6 +1012,11 @@ namespace Shared.Infrastructure.Migrations.HrmMigration
 
             modelBuilder.Entity("UserManagement.Domain.Entities.UserRole", b =>
                 {
+                    b.HasOne("UserManagement.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("EntryByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("UserManagement.Domain.Entities.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")

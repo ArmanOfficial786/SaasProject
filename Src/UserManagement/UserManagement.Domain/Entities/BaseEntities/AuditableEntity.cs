@@ -7,7 +7,7 @@ namespace UserManagement.Domain.Entities.BaseEntities;
 public abstract class AuditableEntity : BaseEntity
 {
     // Tenant isolation
-    public int CompanyId { get; set; }
+    public int? CompanyId { get; set; }
 
     // FIX #2: Scalar FK, not navigation — eliminates circular dependency
     public Guid? EntryByUserId { get; private set; }

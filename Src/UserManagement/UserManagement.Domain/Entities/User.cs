@@ -115,6 +115,7 @@
 
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 
 namespace UserManagement.Domain.Entities;
 
@@ -136,8 +137,8 @@ public class User : IdentityUser<Guid>, IHasDomainEvents
 
     public void ClearDomainEvents() => _domainEvents.Clear();
 
-    // Tenant isolation — explicit CompanyId always set from Company.Id
-    public int CompanyId { get; private set; }
+    // null for super admin users, otherwise set to the specific company ID
+    public int? CompanyId { get; private set; }
     public Company? Company { get; private set; }
 
     public string? FirstName { get; private set; }
@@ -172,8 +173,8 @@ public class User : IdentityUser<Guid>, IHasDomainEvents
 
     private User() { }
 
-    public User(int companyId, string userName, string firstName, string? middleName,
-                string lastName, string email, string? contact, Guid? entryByUserId)
+    public User(string userName, string firstName, string? middleName,
+                string lastName, string email, string? contact, Guid? entryByUserId, int? companyId = null)
     {
         Id = Guid.NewGuid();
         CompanyId = companyId;
@@ -190,13 +191,28 @@ public class User : IdentityUser<Guid>, IHasDomainEvents
 
     public void AddRole(Role role)
     {
-        if (_userRoles.Any(ur => ur.RoleId == role.Id && ur.ToDate is null)) return;
-        _userRoles.Add(new UserRole(Id, role));
+        var targetRole = CompanyId ?? role.CompanyId;
+        if (role.IsCompanyRole)
+        {
+            if (role.CompanyId != targetRole)
+                throw new InvalidOperationException("Cannot assign a role from a different company.");
+
+            if (_userRoles.Any(ur => ur.RoleId == role.Id && ur.CompanyId == targetRole && ur.ToDate is null)) return;
+            _userRoles.Add(new UserRole(Id, role, CompanyId));
+        }
+        else if (role.IsGlobalRole)
+        {
+            if (_userRoles.Any(ur => ur.RoleId == role.Id && ur.ToDate is null)) return;
+            _userRoles.Add(new UserRole(Id, role));
+        }
+
     }
 
-    public void RemoveRole(Guid roleId)
+    public void RemoveRole(Guid roleId, int? companyId = null)
     {
-        var userRole = _userRoles.SingleOrDefault(ur => ur.RoleId == roleId && ur.ToDate is null);
+        var targetCompanyId = companyId ?? CompanyId;
+        var userRole = _userRoles.SingleOrDefault(ur =>
+            ur.RoleId == roleId && ur.CompanyId == targetCompanyId && ur.ToDate is null);
         userRole?.Terminate();
     }
 
@@ -221,10 +237,12 @@ public class User : IdentityUser<Guid>, IHasDomainEvents
                        string lastName, string email, string? contact, Guid? updatedByUserId)
     {
         UserName = userName;
+        NormalizedUserName = userName.ToUpperInvariant();
         FirstName = firstName;
         MiddleName = middleName;
         LastName = lastName;
         Email = email;
+        NormalizedEmail = email.ToUpperInvariant();
         Contact = contact;
         EntryByUserId = updatedByUserId;
     }

@@ -22,10 +22,5 @@
   </ItemGroup>
 
   <!-- Copy seed data files to output directory -->
-  <ItemGroup>
-    <None Update="SeedData\**\*.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 
 </Project>
