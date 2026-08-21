@@ -1,6 +1,6 @@
 [submodule "CoreSaasApi"]
 	path = CoreSaasApi
 	url = https://github.com/ArmanOfficial786/coreSaasApi.git
-[submodule "CoreSaasweb"]
-	path = CoreSaasweb
+[submodule "coresaasweb"]
+	path = coresaasweb
 	url = https://github.com/ArmanOfficial786/coreSaasWeb.git
